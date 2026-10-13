@@ -1,5 +1,6 @@
 import { getTableConfig, type PgTable } from "drizzle-orm/pg-core";
 import { describe, expect, it } from "vitest";
+import { UNITS } from "@/lib/planner/types";
 import { ingredients, mealPlanItems, mealPlans, pantryItems, recipeIngredients, recipes } from "./schema";
 
 function config(table: PgTable) {
@@ -28,10 +29,10 @@ describe("database schema", () => {
     expect(config(table).indexed.some((cols) => startsWith(cols, "user_id"))).toBe(true);
   });
 
-  it("stores quantities as numeric(6,2) and reads them back as numbers", () => {
+  it("stores quantities as numeric(8,2), room for a 10 kg bag in grams, and reads them back as numbers", () => {
     for (const table of [pantryItems, recipeIngredients]) {
       const quantity = config(table).columns.quantity;
-      expect(quantity?.getSQLType()).toBe("numeric(6, 2)");
+      expect(quantity?.getSQLType()).toBe("numeric(8, 2)");
       expect(quantity?.mapFromDriverValue("0.50")).toBe(0.5);
     }
   });
@@ -43,8 +44,16 @@ describe("database schema", () => {
     expect(config(mealPlanItems).checks).toContain("meal_plan_items_status_check");
   });
 
-  it("restricts ingredient units to the canonical practical units", () => {
+  it("restricts ingredient units to the canonical units, including grams and millilitres", () => {
     expect(config(ingredients).checks).toContain("ingredients_unit_check");
+    expect(UNITS).toEqual(["whole", "pack", "bunch", "clove", "count", "g", "ml"]);
+  });
+
+  it("records whether a pantry item has been opened, defaulting to sealed", () => {
+    const opened = config(pantryItems).columns.opened;
+    expect(opened?.getSQLType()).toBe("boolean");
+    expect(opened?.notNull).toBe(true);
+    expect(opened?.default).toBe(false);
   });
 
   it("keeps pantry quantities positive", () => {

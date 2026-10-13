@@ -55,7 +55,8 @@ tests/ or *.test.ts    # Vitest, colocated next to the code is fine
 
 ### Quantities: avoid float bugs
 - Postgres `numeric` comes back from the driver as a **string**. Convert it once in the query layer, not in components.
-- Inside the planner, work in **integer hundredths** (0.5 onion → 50) or compare with an epsilon. Never use `===` on computed floats. `0 < qty < 1` partial checks must hold for values like `1 - 0.5 - 0.5`.
+- Inside the planner, work in **integer hundredths** (0.5 onion → 50, 300 g → 30000) or compare with an epsilon. Never use `===` on computed floats. `0 < qty < 1` partial checks must hold for values like `1 - 0.5 - 0.5`.
+- "Opened" is defined once, in SPEC §3: the `opened` flag, or a counted `whole`/`pack`/`bunch` item with `0 < qty < 1`. Use one shared helper for it, not ad-hoc checks.
 - Round to 2 decimals before writing back to the DB.
 
 ## Next.js (App Router)

@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { UNITS } from "@/lib/planner/types";
 
-/** Fits numeric(6,2): above 0, at most 9999.99, at most 2 decimals. */
+/** Fits numeric(8,2): above 0, at most 999999.99, at most 2 decimals. */
 const quantity = z
   .number()
   .positive()
-  .max(9999.99)
+  .max(999999.99)
   .refine((q) => Math.abs(q * 100 - Math.round(q * 100)) < 1e-9, "at most 2 decimals");
 
 const ingredientName = z.string().regex(/^[a-z][a-z -]*[a-z]$/, "lowercase and trimmed, e.g. \"chicken breast\"");
