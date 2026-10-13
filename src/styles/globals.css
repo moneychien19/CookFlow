@@ -1,1 +1,159 @@
 @import "tailwindcss";
+
+/*
+ * Design tokens from DESIGN.md front matter, same names. Components use the
+ * generated utilities (bg-canvas, text-heading-2, rounded-lg, p-md, ...) and
+ * never raw values. tests/design-tokens.test.ts keeps this file and DESIGN.md
+ * in sync. Tailwind's default theme is reset so only these tokens exist.
+ */
+@theme {
+  --*: initial;
+
+  /* Colors */
+  --color-primary: #2a72de;
+  --color-on-primary: #ffffff;
+  --color-stone: #4a4741;
+  --color-on-stone: #ffffff;
+  --color-clay: #6b443d;
+  --color-espresso: #39221e;
+  --color-gold: #af751b;
+  --color-ochre: #bc924c;
+  --color-gold-soft: #ddaa61;
+  --color-gold-pale: #ddbe78;
+  --color-gold-deep: #684d07;
+  --color-forest: #224228;
+  --color-olive: #5c6f5d;
+  --color-sage: #849671;
+  --color-sage-mute: #7b886d;
+  --color-sage-pale: #ced4b8;
+  --color-canvas: #f7f1e8;
+  --color-surface: #ffffff;
+  --color-surface-grey: #ececec;
+  --color-silver: #cccac7;
+  --color-ink-band: #000000;
+  --color-ink-band-soft: #19191c;
+  --color-ink: #1c1b1a;
+  --color-ash: #838280;
+  --color-mute: #a8a5a0;
+  --color-on-dark: #ffffff;
+  --color-hairline: #e1dcd3;
+  --color-error: #e33a22;
+
+  /* Type: size, line height, weight, tracking. Pair Editorial New roles with font-serif. */
+  --text-display: 110px; /* serif */
+  --text-display--line-height: 1.05;
+  --text-display--font-weight: 300;
+  --text-display--letter-spacing: 0;
+  --text-display-2: 80px; /* serif */
+  --text-display-2--line-height: 1.1;
+  --text-display-2--font-weight: 300;
+  --text-display-2--letter-spacing: 0;
+  --text-heading-1: 68px; /* serif */
+  --text-heading-1--line-height: 1.1;
+  --text-heading-1--font-weight: 300;
+  --text-heading-1--letter-spacing: 0;
+  --text-heading-2: 40px; /* serif */
+  --text-heading-2--line-height: 1.15;
+  --text-heading-2--font-weight: 300;
+  --text-heading-2--letter-spacing: 0;
+  --text-heading-3: 40px; /* sans */
+  --text-heading-3--line-height: 1.25;
+  --text-heading-3--font-weight: 400;
+  --text-heading-3--letter-spacing: 0;
+  --text-title: 32px; /* sans */
+  --text-title--line-height: 1.25;
+  --text-title--font-weight: 400;
+  --text-title--letter-spacing: 0;
+  --text-lead: 24px; /* serif */
+  --text-lead--line-height: 1.25;
+  --text-lead--font-weight: 100;
+  --text-lead--letter-spacing: 0;
+  --text-body-lg: 20px; /* sans */
+  --text-body-lg--line-height: 1.5;
+  --text-body-lg--font-weight: 400;
+  --text-body-lg--letter-spacing: 0;
+  --text-body: 18px; /* sans */
+  --text-body--line-height: 1.5;
+  --text-body--font-weight: 400;
+  --text-body--letter-spacing: 0;
+  --text-body-sm: 16px; /* sans */
+  --text-body-sm--line-height: 1.5;
+  --text-body-sm--font-weight: 400;
+  --text-body-sm--letter-spacing: 0;
+  --text-button: 16px; /* sans */
+  --text-button--line-height: 1;
+  --text-button--font-weight: 600;
+  --text-button--letter-spacing: 0;
+  --text-ui: 14px; /* sans */
+  --text-ui--line-height: 1.4;
+  --text-ui--font-weight: 400;
+  --text-ui--letter-spacing: 0;
+  --text-caption: 13px; /* sans */
+  --text-caption--line-height: 1.4;
+  --text-caption--font-weight: 400;
+  --text-caption--letter-spacing: 0;
+  --text-eyebrow: 12px; /* sans */
+  --text-eyebrow--line-height: 1.2;
+  --text-eyebrow--font-weight: 700;
+  --text-eyebrow--letter-spacing: 1px;
+
+  /* Radius */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-xl: 40px;
+  --radius-full: 9999px;
+
+  /* Spacing (8px base) */
+  --spacing-xxs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  --spacing-touch: 44px;
+
+  /* Elevation: modals and toasts only */
+  --shadow-soft: 0 4px 16px rgba(28, 27, 26, 0.08);
+  --shadow-overlay: 0 12px 40px rgba(28, 27, 26, 0.16);
+
+  /* Layout */
+  --container-page: 1120px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-laptop: 1024px;
+  --breakpoint-desktop: 1280px;
+}
+
+/* Font families come from next/font variables set on <html> in the root layout. */
+@theme inline {
+  --font-serif: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Links are stone and underlined; never blue. */
+  a {
+    color: var(--color-stone);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  /* One visible focus ring for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--color-stone);
+    outline-offset: 2px;
+  }
+}
