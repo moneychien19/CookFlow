@@ -39,7 +39,7 @@ The planner is a greedy loop with simulated pantry depletion. In each round it s
 score(r) = use(r) − γ·newPartial(r) − δ·missing(r)
 ```
 
-- `use(r)`: how much of the pantry the recipe uses up. Each unit is weighted higher if the item is already opened (partial) or expires soon.
+- `use(r)`: how much of the pantry the recipe uses up, as the share of each item it finishes (so 4 garlic cloves don't outweigh a pack of chicken). Each item is weighted higher if it's already opened (partial) or expires soon.
 - `newPartial(r)`: penalty for each item the recipe would leave half-used.
 - `missing(r)`: penalty for each ingredient you'd have to buy.
 

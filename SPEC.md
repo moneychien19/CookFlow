@@ -20,6 +20,9 @@
 | 7 | One dietary filter (e.g. vegetarian) |
 | 8 | CI (lint + tests) and auto-deploy on `main` |
 
+### Stretch
+- Reorder a generated plan so meals using the soonest-expiring items come first (§5 lists meals in pick order).
+
 ### Out (explicitly cut — list these in README)
 - Precise unit conversion (cups ↔ grams ↔ "half an onion")
 - Live external recipe API calls
@@ -149,7 +152,7 @@ For recipe `r` against current simulated pantry `P'` (staples ignored):
 coverage(r)   = |ingredients of r available in P'| / |non-staple ingredients of r|
 if coverage(r) < 0.6: skip
 
-use(r)        = Σ_i  min(need_i, have_i) × w_i
+use(r)        = Σ_i  (min(need_i, have_i) / have_i) × w_i      # share of item i used up, 0..1
   w_i         = 1
               + α · [item i is partial (0 < have_i < 1)]     # prioritize opened items
               + β · urgency(expires_on_i)                     # 0..1, higher when expiring soon
@@ -161,11 +164,19 @@ missing(r)    = count of ingredients of r not in P'
 score(r)      = use(r) − γ · newPartial(r) − δ · missing(r)
 ```
 
-Starting weights: `α = 2, β = 1, γ = 1, δ = 1.5`. Tune by hand against 3–4 fixture pantries.
+Weights: `α = 2, β = 3, γ = 1, δ = 1.5`.
+
+Tuned by hand against four example pantries (2026-10-13):
+- `use` counts the **share** of each item used up, not the raw quantity. Units differ per ingredient, so raw quantities let 4 garlic cloves outscore a whole pack of chicken that expires tomorrow. With shares, using up any item counts 1 before weighting.
+- `β` went from 1 to 3. At 1 or 2, food expiring today lost to recipes that opened fewer packs.
 
 `urgency(d) = clamp(1 − days_until(d) / 7, 0, 1)`; no expiry → 0.
 
 A recipe made only of staples has coverage 0 and is skipped. Scores within `1e-9` are a tie; the recipe earlier in the input order wins, so results are deterministic.
+
+Kept deliberately:
+- **Meals are listed in the order they were picked**, not by expiry. A meal picked second can use food that expires sooner than the first meal's (see Stretch).
+- **A plan fills all N meals** as long as recipes pass the coverage threshold, even when a later meal scores below 0 (it mostly adds to the shopping list). The cook asked for N meals; they can skip one.
 
 ### Output
 - Ordered meals

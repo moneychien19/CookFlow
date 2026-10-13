@@ -34,6 +34,16 @@ describe("planMeals", () => {
     expect(titles(result.meals)).toEqual(["big", "small"]);
   });
 
+  it("cooks food expiring today first, even if that opens a pack of rice", () => {
+    const fridge = pantry({ mushrooms: { qty: 1, expiresOn: TODAY }, rice: 1, tomato: 1, leek: 1 });
+    const recipes = [
+      recipe("tomato & leek gratin", { tomato: 1, leek: 1 }),
+      recipe("mushroom rice", { mushrooms: 1, rice: 0.5 }),
+    ];
+    const result = planMeals(fridge, recipes, 2, { today: TODAY });
+    expect(titles(result.meals)).toEqual(["mushroom rice", "tomato & leek gratin"]);
+  });
+
   it("never picks a recipe below the coverage threshold", () => {
     const fridge = pantry({ onion: 1 });
     const recipes = [recipe("stew", { onion: 1, tomato: 1, leek: 1 })];
