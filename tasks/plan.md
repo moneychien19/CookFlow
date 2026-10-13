@@ -102,29 +102,29 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Scope:** M
 
 ### Checkpoint A: Foundation
-- [ ] typecheck, lint, test green locally and in CI
+- [x] typecheck, lint, test green locally and in CI
 - [x] Planner covers every SPEC §5 test
 - [x] Review the planner's behavior on 3–4 fixture pantries with you before wiring it to data (weights tuning happens here). Done 2026-10-13: `use` switched to share-used, β = 3 (SPEC §5); found and fixed `planMeals` mutating its input
 
 ### Phase 2: Data
 
-#### Task 7: Database schema and client
+#### Task 7: Database schema and client ✅
 **Description:** Drizzle schema for SPEC §3 tables plus Auth.js adapter tables; `user_id` indexes; Neon client; query-layer helpers that convert `numeric` strings to numbers once. Generate and commit the first migration.
 **Acceptance criteria:**
-- [ ] `npm run db:migrate` creates all tables on a fresh Neon branch
-- [ ] `unique (user_id, ingredient_id)` on pantry; indexes on every filtered `user_id`
-- [ ] Status columns typed as `"planned" | "cooked" | "skipped"`
+- [x] `npm run db:migrate` creates all tables on a fresh Neon branch
+- [x] `unique (user_id, ingredient_id)` on pantry; indexes on every filtered `user_id`
+- [x] Status columns typed as `"planned" | "cooked" | "skipped"`
 **Verification:** run migrate against a Neon dev branch; inspect with `drizzle-kit studio`.
 **Dependencies:** T1
 **Files:** `src/lib/db/{schema,client}.ts`, `drizzle.config.ts`, `drizzle/0000_*.sql`
 **Scope:** M
 
-#### Task 8: Seed schema, loader, and dev seed
+#### Task 8: Seed schema, loader, and dev seed ✅
 **Description:** Zod schemas for `seed/ingredients.json` and `seed/recipes.json`; `npm run db:seed` validates and upserts them (idempotent). Commit a hand-written dev seed (~25 ingredients, ~10 recipes incl. vegetarian ones and some needing partial items) so pages can be built now. Also a `seed/sample-pantry.json` used by "Load sample pantry".
 **Acceptance criteria:**
-- [ ] Invalid JSON fails the seed with a readable zod error
-- [ ] Running the seed twice leaves the same row counts
-- [ ] Staples flagged `is_staple`
+- [x] Invalid JSON fails the seed with a readable zod error
+- [x] Running the seed twice leaves the same row counts
+- [x] Staples flagged `is_staple`
 **Verification:** `npm run db:seed` twice; count rows.
 **Dependencies:** T7
 **Files:** `seed/{schema,seed}.ts`, `seed/ingredients.json`, `seed/recipes.json`, `seed/sample-pantry.json`

@@ -1,4 +1,6 @@
-export type Unit = "whole" | "pack" | "bunch" | "clove" | "count";
+/** Canonical practical units (SPEC §3). One per ingredient; no conversion. */
+export const UNITS = ["whole", "pack", "bunch", "clove", "count"] as const;
+export type Unit = (typeof UNITS)[number];
 
 /** ISO calendar date, "YYYY-MM-DD". */
 export type IsoDate = string;
