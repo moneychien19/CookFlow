@@ -57,6 +57,21 @@ describe("planMeals", () => {
     expect(result.meals).toHaveLength(1);
   });
 
+  it("leaves the caller's recipe list untouched", () => {
+    const fridge = pantry({ onion: 1, tomato: 1 });
+    const recipes = [recipe("soup", { onion: 1 }), recipe("salad", { tomato: 1 })];
+    planMeals(fridge, recipes, 2, { today: TODAY });
+    expect(recipes.map((r) => r.title)).toEqual(["soup", "salad"]);
+  });
+
+  it("plans the same way when called twice with the same inputs", () => {
+    const fridge = pantry({ onion: 1, tomato: 1 });
+    const recipes = [recipe("soup", { onion: 1 }), recipe("salad", { tomato: 1 })];
+    const first = planMeals(fridge, recipes, 2, { today: TODAY });
+    const second = planMeals(fridge, recipes, 2, { today: TODAY });
+    expect(titles(second.meals)).toEqual(titles(first.meals));
+  });
+
   it("breaks score ties by input order", () => {
     const fridge = pantry({ onion: 1, tomato: 1 });
     const recipes = [recipe("first", { tomato: 1 }), recipe("second", { onion: 1 })];
