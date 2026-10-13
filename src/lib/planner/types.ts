@@ -1,5 +1,9 @@
-/** Canonical practical units (SPEC §3). One per ingredient; no conversion. */
-export const UNITS = ["whole", "pack", "bunch", "clove", "count"] as const;
+/**
+ * Canonical units (SPEC §3). One per ingredient; no conversion at runtime.
+ * Produce is counted ("whole", "bunch"); meat, fish, cheese, and dry goods are
+ * weighed in grams; milk and cream are measured in millilitres.
+ */
+export const UNITS = ["whole", "pack", "bunch", "clove", "count", "g", "ml"] as const;
 export type Unit = (typeof UNITS)[number];
 
 /** ISO calendar date, "YYYY-MM-DD". */

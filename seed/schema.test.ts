@@ -56,7 +56,7 @@ describe("parseSeed", () => {
     );
   });
 
-  it.each([0, -1, 0.555, 10000])("rejects a recipe quantity of %s", (quantity) => {
+  it.each([0, -1, 0.555, 1000000])("rejects a recipe quantity of %s", (quantity) => {
     const recipe = { ...soup, ingredients: [{ ...soup.ingredients[0], quantity }] };
     expect(errorOf(parse({ recipes: [recipe] }))).toContain("quantity");
   });

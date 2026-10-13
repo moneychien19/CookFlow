@@ -24,8 +24,8 @@ type AdapterAccountType = "oauth" | "oidc" | "email" | "webauthn";
 /** `'a', 'b', ...` for an IN (...) check. Values are our own constants, never user input. */
 const sqlList = (values: readonly string[]) => sql.raw(values.map((v) => `'${v}'`).join(", "));
 
-/** Practical quantity in the ingredient's unit: 0.5 onion = 0.50. Read back as a number. */
-const quantity = () => numeric("quantity", { precision: 6, scale: 2, mode: "number" }).notNull();
+/** Quantity in the ingredient's unit: 0.5 onion = 0.50, 300 g of chicken = 300.00. Read back as a number. */
+const quantity = () => numeric("quantity", { precision: 8, scale: 2, mode: "number" }).notNull();
 
 // ─── Auth.js (Drizzle adapter). JS property names are what the adapter expects. ───
 
@@ -104,6 +104,8 @@ export const pantryItems = pgTable(
       .references(() => ingredients.id),
     quantity: quantity(),
     expiresOn: date("expires_on", { mode: "string" }),
+    /** Opened or partly used. Set by the user, and by "mark cooked" when some is left (SPEC §6). */
+    opened: boolean("opened").notNull().default(false),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
