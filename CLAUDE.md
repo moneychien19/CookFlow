@@ -126,10 +126,10 @@ The serif is for headings ≥ 24px only. Never set body text, labels, or numbers
   |---|---|
   | Partial / opened item | `gold-pale` badge with `espresso` text |
   | Expiring within 3 days | `clay` badge with white text |
-  | Ingredient you have (recipe page) | `olive` / `sage-pale` marker |
-  | Missing ingredient / shopping list | `ash` text, `hairline` divider |
+  | Ingredient you have (recipe page) | `sage-pale` badge with `forest` text (olive text on sage-pale is below AA) |
+  | Missing ingredient / shopping list | `hairline` border or divider; `stone` text for anything essential (`ash` only for non-essential captions) |
   | Leftovers before → after | "Before" in `gold`, "after" in `olive`; show it as a `stat-badge` pair |
-- `error` is only for validation errors and destructive confirmation. Use it for the input border **only when the field is invalid**, not on focus.
+- `error` is only for validation errors and destructive confirmation. Use it for the input border **only when the field is invalid**, not on focus. Error message text is `ink`: `error` on white or canvas is below AA for small text.
 
 ### Components
 - Buttons: fully rounded pills (`rounded.full`), `typography.button`, at least 44px tall.

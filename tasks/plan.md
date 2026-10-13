@@ -69,11 +69,11 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Files:** `src/styles/globals.css`, `src/app/layout.tsx`, `src/components/NavBar.tsx`
 **Scope:** S
 
-#### Task 4: UI primitives
+#### Task 4: UI primitives ✅
 **Description:** `Button` (primary / secondary / outline-stone, pill, ≥44px), `Card` (feature-card), `Input` + `Label` (white, hairline, stone focus ring, error border only when invalid), `Badge` (opened / expiring / have / missing variants, always with text), `StatBadgePair` (before gold → after olive), `EmptyState`, `Toast`.
 **Acceptance criteria:**
-- [ ] Each primitive uses tokens only and has a visible 2px-offset stone focus ring
-- [ ] Badge variants match the CLAUDE.md color-role table
+- [x] Each primitive uses tokens only and has a visible 2px-offset stone focus ring
+- [x] Badge variants match the CLAUDE.md color-role table
 **Verification:** a temporary `/dev/ui` page (deleted in T21) or component tests rendering each variant; keyboard-tab through it.
 **Dependencies:** T3
 **Files:** `src/components/ui/{Button,Card,Input,Badge,StatBadgePair,EmptyState,Toast}.tsx`

@@ -116,6 +116,7 @@
   --spacing-2xl: 48px;
   --spacing-3xl: 64px;
   --spacing-touch: 44px;
+  --spacing-stat: 88px;
 
   /* Elevation: modals and toasts only */
   --shadow-soft: 0 4px 16px rgba(28, 27, 26, 0.08);

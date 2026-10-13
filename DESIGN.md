@@ -139,6 +139,7 @@ spacing:
   2xl: 48px
   3xl: 64px
   touch: 44px
+  stat: 88px
 
 # CookFlow additions: soft, low-opacity shadows for modals and toasts only.
 elevation:
@@ -436,7 +437,7 @@ Both faces are proprietary. For open-source builds, substitute **Editorial New**
 ### Spacing System
 - **Base unit**: 8px.
 - **Tokens**: `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.md}` 16px · `{spacing.lg}` 24px · `{spacing.xl}` 32px.
-- **CookFlow additions**: `{spacing.2xl}` 48px and `{spacing.3xl}` 64px for gaps between page sections; `{spacing.touch}` 44px as the minimum height of buttons and nav links.
+- **CookFlow additions**: `{spacing.2xl}` 48px and `{spacing.3xl}` 64px for gaps between page sections; `{spacing.touch}` 44px as the minimum height of buttons and nav links; `{spacing.stat}` 88px as the diameter of a `stat-badge` circle.
 - Card interiors sit at `{spacing.lg}`; tight utility groupings (form padding, chip padding) at `{spacing.sm}`–`{spacing.md}`. Section-to-section rhythm is deliberately large — long vertical gaps of blank cream separate content blocks, letting photography and headlines breathe.
 
 ### Grid & Container

@@ -11,7 +11,7 @@ const RULES: [string, RegExp][] = [
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { recursive: true, encoding: "utf8" })
-    .filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith(".test.ts"))
+    .filter((f) => /\.(tsx?|css)$/.test(f) && !/\.test\.tsx?$/.test(f))
     .map((f) => join(dir, f))
     .filter((f) => f !== join("src", "styles", "globals.css"));
 }
