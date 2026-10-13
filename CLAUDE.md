@@ -22,8 +22,9 @@ npm run dev          # local dev server
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint
 npm test             # vitest run
+npm run db:generate  # generate a migration after changing lib/db/schema.ts
 npm run db:migrate   # apply migrations
-npm run db:seed      # load seed/recipes.json + ingredients
+npm run db:seed      # validate seed/*.json and upsert ingredients + recipes (idempotent)
 ```
 
 Before calling a task done, run `npm run typecheck && npm run lint && npm test`; all three must pass (CI runs the same).
@@ -86,7 +87,7 @@ tests/ or *.test.ts    # Vitest, colocated next to the code is fine
 
 - Vitest. Test behavior, not implementation details. Each test name reads as a sentence: `"prefers a partial onion over a full one"`.
 - Build fixtures with small factory helpers (`pantry({ onion: 0.5 })`, `recipe("soup", { onion: 1 })`), not large JSON blobs.
-- DB-dependent logic (mark cooked idempotency) is tested against a real Postgres (Neon branch or local), not mocks.
+- DB-dependent logic (mark cooked idempotency) is tested against a real Postgres (Neon branch or local), not mocks. Name those files `*.db.test.ts`; they read only `TEST_DATABASE_URL` (shell or `.env.local`) and are skipped when it isn't set. Point it at a Neon dev branch, never production.
 
 ## Design guidelines
 

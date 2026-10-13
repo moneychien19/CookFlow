@@ -1,0 +1,141 @@
+[
+  {
+    "name": "onion",
+    "unit": "whole"
+  },
+  {
+    "name": "tomato",
+    "unit": "whole"
+  },
+  {
+    "name": "carrot",
+    "unit": "whole"
+  },
+  {
+    "name": "potato",
+    "unit": "whole"
+  },
+  {
+    "name": "bell pepper",
+    "unit": "whole"
+  },
+  {
+    "name": "lemon",
+    "unit": "whole"
+  },
+  {
+    "name": "zucchini",
+    "unit": "whole"
+  },
+  {
+    "name": "garlic",
+    "unit": "clove"
+  },
+  {
+    "name": "egg",
+    "unit": "count"
+  },
+  {
+    "name": "canned tomatoes",
+    "unit": "count"
+  },
+  {
+    "name": "coconut milk",
+    "unit": "count"
+  },
+  {
+    "name": "chicken breast",
+    "unit": "pack"
+  },
+  {
+    "name": "ground beef",
+    "unit": "pack"
+  },
+  {
+    "name": "bacon",
+    "unit": "pack"
+  },
+  {
+    "name": "rice",
+    "unit": "pack"
+  },
+  {
+    "name": "pasta",
+    "unit": "pack"
+  },
+  {
+    "name": "cheddar cheese",
+    "unit": "pack"
+  },
+  {
+    "name": "parmesan",
+    "unit": "pack"
+  },
+  {
+    "name": "feta",
+    "unit": "pack"
+  },
+  {
+    "name": "tofu",
+    "unit": "pack"
+  },
+  {
+    "name": "mushrooms",
+    "unit": "pack"
+  },
+  {
+    "name": "cream",
+    "unit": "pack"
+  },
+  {
+    "name": "spinach",
+    "unit": "bunch"
+  },
+  {
+    "name": "parsley",
+    "unit": "bunch"
+  },
+  {
+    "name": "cilantro",
+    "unit": "bunch"
+  },
+  {
+    "name": "green onion",
+    "unit": "bunch"
+  },
+  {
+    "name": "salt",
+    "unit": "count",
+    "isStaple": true
+  },
+  {
+    "name": "black pepper",
+    "unit": "count",
+    "isStaple": true
+  },
+  {
+    "name": "olive oil",
+    "unit": "count",
+    "isStaple": true
+  },
+  {
+    "name": "vegetable oil",
+    "unit": "count",
+    "isStaple": true
+  },
+  {
+    "name": "water",
+    "unit": "count",
+    "isStaple": true
+  },
+  {
+    "name": "sugar",
+    "unit": "count",
+    "isStaple": true
+  },
+  {
+    "name": "flour",
+    "unit": "count",
+    "isStaple": true
+  }
+]

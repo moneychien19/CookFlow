@@ -119,12 +119,12 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Files:** `src/lib/db/{schema,client}.ts`, `drizzle.config.ts`, `drizzle/0000_*.sql`
 **Scope:** M
 
-#### Task 8: Seed schema, loader, and dev seed
+#### Task 8: Seed schema, loader, and dev seed ✅
 **Description:** Zod schemas for `seed/ingredients.json` and `seed/recipes.json`; `npm run db:seed` validates and upserts them (idempotent). Commit a hand-written dev seed (~25 ingredients, ~10 recipes incl. vegetarian ones and some needing partial items) so pages can be built now. Also a `seed/sample-pantry.json` used by "Load sample pantry".
 **Acceptance criteria:**
-- [ ] Invalid JSON fails the seed with a readable zod error
-- [ ] Running the seed twice leaves the same row counts
-- [ ] Staples flagged `is_staple`
+- [x] Invalid JSON fails the seed with a readable zod error
+- [x] Running the seed twice leaves the same row counts
+- [x] Staples flagged `is_staple`
 **Verification:** `npm run db:seed` twice; count rows.
 **Dependencies:** T7
 **Files:** `seed/{schema,seed}.ts`, `seed/ingredients.json`, `seed/recipes.json`, `seed/sample-pantry.json`
