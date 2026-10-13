@@ -37,12 +37,12 @@ T1 scaffold ─┬─ T2 CI + deploy
 
 ### Phase 1: Foundation
 
-#### Task 1: Scaffold the Next.js app and toolchain
+#### Task 1: Scaffold the Next.js app and toolchain ✅
 **Description:** Create the Next.js App Router + TypeScript project with the layout in CLAUDE.md, strict TS (`noUncheckedIndexedAccess`), `@/` alias, ESLint, Vitest, zod, and the npm scripts CLAUDE.md lists. Add `.env.example`.
 **Acceptance criteria:**
-- [ ] `npm run dev` serves a placeholder page
-- [ ] `npm run typecheck && npm run lint && npm test` pass (one trivial test)
-- [ ] `.gitignore` excludes `.env*` except `.env.example`
+- [x] `npm run dev` serves a placeholder page
+- [x] `npm run typecheck && npm run lint && npm test` pass (one trivial test)
+- [x] `.gitignore` excludes `.env*` except `.env.example`
 **Verification:** run the three commands; open `localhost:3000`.
 **Dependencies:** None
 **Files:** `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `vitest.config.ts`, `.env.example`, `src/app/layout.tsx`, `src/app/page.tsx`
