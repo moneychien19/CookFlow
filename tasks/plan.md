@@ -103,8 +103,8 @@ T1 scaffold ─┬─ T2 CI + deploy
 
 ### Checkpoint A: Foundation
 - [ ] typecheck, lint, test green locally and in CI
-- [ ] Planner covers every SPEC §5 test
-- [ ] Review the planner's behavior on 3–4 fixture pantries with you before wiring it to data (weights tuning happens here)
+- [x] Planner covers every SPEC §5 test
+- [x] Review the planner's behavior on 3–4 fixture pantries with you before wiring it to data (weights tuning happens here). Done 2026-10-13: `use` switched to share-used, β = 3 (SPEC §5); found and fixed `planMeals` mutating its input
 
 ### Phase 2: Data
 

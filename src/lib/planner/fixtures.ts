@@ -10,6 +10,8 @@ const CATALOG: Record<string, { id: number; unit: Unit; isStaple?: boolean }> = 
   parsley: { id: 6, unit: "bunch" },
   garlic: { id: 7, unit: "clove" },
   egg: { id: 8, unit: "count" },
+  mushrooms: { id: 9, unit: "pack" },
+  rice: { id: 10, unit: "pack" },
   salt: { id: 100, unit: "count", isStaple: true },
   pepper: { id: 101, unit: "count", isStaple: true },
 };

@@ -51,7 +51,8 @@ export function planMeals(
 ): PlanResult {
   const sim = simulatePantry(pantry);
   const leftoversBefore = countHardToUse(sim);
-  const remaining = applyDietary(recipes, options.dietary);
+  // A copy: picked recipes are removed from it, and the caller's list must stay intact.
+  const remaining = [...applyDietary(recipes, options.dietary)];
   const meals: PlannedMeal[] = [];
   const shortfall = new Map<number, number>();
 

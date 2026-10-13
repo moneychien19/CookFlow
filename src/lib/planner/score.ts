@@ -6,7 +6,7 @@ import {
   GAMMA,
   URGENCY_HORIZON_DAYS,
 } from "./constants";
-import { fromHundredths, isPartial, toHundredths } from "./quantity";
+import { isPartial, toHundredths } from "./quantity";
 import type {
   IsoDate,
   PantryEntry,
@@ -41,7 +41,7 @@ export function score(recipe: RecipeEntry, pantry: SimPantry, today: IsoDate): S
   const needs = recipe.ingredients.filter((i) => !i.isStaple);
 
   let available = 0;
-  let use = 0; // hundredths × weight
+  let use = 0; // Σ share of each item used up × weight
   let newPartial = 0;
   for (const ingredient of needs) {
     const item = pantry.get(ingredient.ingredientId);
@@ -53,7 +53,8 @@ export function score(recipe: RecipeEntry, pantry: SimPantry, today: IsoDate): S
     const used = Math.min(need, have);
     const weight =
       1 + (isPartial(have) ? ALPHA : 0) + BETA * urgency(item.expiresOn, today);
-    use += used * weight;
+    // Share, not raw quantity: units differ (4 cloves vs 1 pack), so using up an item counts 1.
+    use += (used / have) * weight;
 
     if (!isPartial(have) && isPartial(have - used)) newPartial += 1;
   }
@@ -66,12 +67,11 @@ export function score(recipe: RecipeEntry, pantry: SimPantry, today: IsoDate): S
   }
 
   const missing = needs.length - available;
-  const useUnits = fromHundredths(use);
   return {
     kind: "scored",
-    score: useUnits - GAMMA * newPartial - DELTA * missing,
+    score: use - GAMMA * newPartial - DELTA * missing,
     coverage,
-    use: useUnits,
+    use,
     newPartial,
     missing,
   };

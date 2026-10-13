@@ -35,6 +35,20 @@ describe("score", () => {
     expect(needsTwo.use).toBeCloseTo(needsHalf.use);
   });
 
+  it("scores by the share of each item used up, so 4 of 8 garlic cloves don't outweigh a whole pack of chicken", () => {
+    const fridge = pantry({ garlic: 8, "chicken breast": 1 });
+    const usesGarlic = scored(scoreOf(recipe("garlic bread", { garlic: 4 }), fridge));
+    const usesChicken = scored(scoreOf(recipe("roast chicken", { "chicken breast": 1 }), fridge));
+    expect(usesChicken.score).toBeGreaterThan(usesGarlic.score);
+  });
+
+  it("gives full credit for using up an item, whatever its unit", () => {
+    const fridge = pantry({ egg: 6, onion: 1 });
+    const allEggs = scored(scoreOf(recipe("omelette", { egg: 6 }), fridge));
+    const wholeOnion = scored(scoreOf(recipe("onion soup", { onion: 1 }), fridge));
+    expect(allEggs.use).toBeCloseTo(wholeOnion.use);
+  });
+
   it("skips a recipe covering under 60% of its non-staple ingredients", () => {
     const fridge = pantry({ onion: 1 });
     const result = scoreOf(recipe("stew", { onion: 1, tomato: 1, leek: 1 }), fridge);

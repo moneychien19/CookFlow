@@ -34,6 +34,16 @@ describe("planMeals", () => {
     expect(titles(result.meals)).toEqual(["big", "small"]);
   });
 
+  it("cooks food expiring today first, even if that opens a pack of rice", () => {
+    const fridge = pantry({ mushrooms: { qty: 1, expiresOn: TODAY }, rice: 1, tomato: 1, leek: 1 });
+    const recipes = [
+      recipe("tomato & leek gratin", { tomato: 1, leek: 1 }),
+      recipe("mushroom rice", { mushrooms: 1, rice: 0.5 }),
+    ];
+    const result = planMeals(fridge, recipes, 2, { today: TODAY });
+    expect(titles(result.meals)).toEqual(["mushroom rice", "tomato & leek gratin"]);
+  });
+
   it("never picks a recipe below the coverage threshold", () => {
     const fridge = pantry({ onion: 1 });
     const recipes = [recipe("stew", { onion: 1, tomato: 1, leek: 1 })];
@@ -55,6 +65,21 @@ describe("planMeals", () => {
     const fridge = pantry({ onion: 1 });
     const result = planMeals(fridge, [recipe("soup", { onion: 1 })], 5, { today: TODAY });
     expect(result.meals).toHaveLength(1);
+  });
+
+  it("leaves the caller's recipe list untouched", () => {
+    const fridge = pantry({ onion: 1, tomato: 1 });
+    const recipes = [recipe("soup", { onion: 1 }), recipe("salad", { tomato: 1 })];
+    planMeals(fridge, recipes, 2, { today: TODAY });
+    expect(recipes.map((r) => r.title)).toEqual(["soup", "salad"]);
+  });
+
+  it("plans the same way when called twice with the same inputs", () => {
+    const fridge = pantry({ onion: 1, tomato: 1 });
+    const recipes = [recipe("soup", { onion: 1 }), recipe("salad", { tomato: 1 })];
+    const first = planMeals(fridge, recipes, 2, { today: TODAY });
+    const second = planMeals(fridge, recipes, 2, { today: TODAY });
+    expect(titles(second.meals)).toEqual(titles(first.meals));
   });
 
   it("breaks score ties by input order", () => {

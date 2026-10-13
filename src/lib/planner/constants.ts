@@ -2,8 +2,12 @@
 
 /** Extra weight for using an already-opened (partial) item. */
 export const ALPHA = 2;
-/** Extra weight for using an item, scaled by how soon it expires. */
-export const BETA = 1;
+/**
+ * Extra weight for using an item, scaled by how soon it expires. 3, not SPEC's
+ * starting 1: at 1 or 2, food expiring today lost to recipes that open fewer
+ * packs (Checkpoint A, 2026-10-13).
+ */
+export const BETA = 3;
 /** Penalty per item the recipe would leave newly half-used. */
 export const GAMMA = 1;
 /** Penalty per ingredient the cook would have to buy. */
