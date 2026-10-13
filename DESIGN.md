@@ -135,6 +135,23 @@ spacing:
   md: 16px
   lg: 24px
   xl: 32px
+  # CookFlow additions: section rhythm and the 44px minimum touch target.
+  2xl: 48px
+  3xl: 64px
+  touch: 44px
+  stat: 88px
+
+# CookFlow additions: soft, low-opacity shadows for modals and toasts only.
+elevation:
+  soft: "0 4px 16px rgba(28, 27, 26, 0.08)"
+  overlay: "0 12px 40px rgba(28, 27, 26, 0.16)"
+
+# CookFlow additions: content container and the breakpoint ladder below.
+layout:
+  container-page: 1120px
+  breakpoint-tablet: 768px
+  breakpoint-laptop: 1024px
+  breakpoint-desktop: 1280px
 
 components:
   # ─── Brand-native components (extracted) ───
@@ -420,10 +437,12 @@ Both faces are proprietary. For open-source builds, substitute **Editorial New**
 ### Spacing System
 - **Base unit**: 8px.
 - **Tokens**: `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.md}` 16px · `{spacing.lg}` 24px · `{spacing.xl}` 32px.
+- **CookFlow additions**: `{spacing.2xl}` 48px and `{spacing.3xl}` 64px for gaps between page sections; `{spacing.touch}` 44px as the minimum height of buttons and nav links; `{spacing.stat}` 88px as the diameter of a `stat-badge` circle.
 - Card interiors sit at `{spacing.lg}`; tight utility groupings (form padding, chip padding) at `{spacing.sm}`–`{spacing.md}`. Section-to-section rhythm is deliberately large — long vertical gaps of blank cream separate content blocks, letting photography and headlines breathe.
 
 ### Grid & Container
 - Content is center-constrained within a wide max-width, with full-bleed photography breaking out to the viewport edges.
+- CookFlow: content sits in `{layout.container-page}` (1120px), and card grids go 1-up → 2-up at `{layout.breakpoint-tablet}` → 3-up at `{layout.breakpoint-laptop}`.
 - Card grids run 3-up (person cards, benefit trios) and 4-up (news / expert carousels), collapsing toward 1-up on narrow screens.
 - The product page alternates centered single-column showcases with edge-to-edge media.
 
@@ -462,6 +481,8 @@ Photography is full-bleed and art-directed, often edge-to-edge on mobile. Produc
 | 1 — Resting card | Very soft, low-opacity drop shadow | News cards on the black band, the Technical Specifications card |
 | 2 — Floating | Slightly deeper, more diffuse soft shadow | Product-showcase media cards, elevated content cards |
 | 3 — Overlay | Strong diffuse shadow + scrim | Modals / dialogs (rare) |
+
+CookFlow uses two of these as tokens: `{elevation.soft}` for toasts and `{elevation.overlay}` for modals. Everything else is flat.
 
 Depth is understated. On cream, sections separate through the surface-world shift (cream → black → silver) and hairline dividers rather than heavy elevation. Where shadows appear, they are soft, warm, and low-opacity — never hard or high-contrast.
 

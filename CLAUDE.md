@@ -96,7 +96,8 @@ tests/ or *.test.ts    # Vitest, colocated next to the code is fine
 - Ignore marketing-only parts that don't apply to an app: hero-sized display type on app pages, `product-card`, `person-card`, `news-card`, the silver "product stage", `announcement-bar`, and the `ex-pricing-tier` / `ex-cart-drawer` / `ex-product-selector` examples.
 
 ### Tokens
-- Copy the YAML front-matter tokens into CSS custom properties in `src/styles/globals.css` (Tailwind v4 `@theme` if Tailwind is used): `--color-canvas`, `--color-stone`, `--radius-lg`, `--space-md`, and so on, with the same names as DESIGN.md.
+- Copy the YAML front-matter tokens into CSS custom properties in `src/styles/globals.css` with Tailwind v4 `@theme`, using Tailwind's namespaces and DESIGN.md's names: `--color-canvas`, `--radius-lg`, `--spacing-md`, `--text-heading-2`, `--shadow-soft`, and so on. That yields utilities like `bg-canvas`, `rounded-lg`, `p-md`, `text-heading-2`. Tailwind's default theme is reset, so only these tokens exist. `tests/design-tokens.test.ts` fails if globals.css and DESIGN.md drift apart, and `tests/design-lint.test.ts` fails on raw hex, px, or arbitrary `[...]` values in `src/`.
+- Type tokens carry size, line height, weight, and tracking. Add `font-serif` to elements using an Editorial New role (`display*`, `heading-1`, `heading-2`, `lead`).
 - Components reference tokens only. **No raw hex values, px font sizes, or ad-hoc radii in components.** If a value is missing, add a token to globals.css and DESIGN.md, not a one-off.
 
 ### Fonts
@@ -125,10 +126,10 @@ The serif is for headings ≥ 24px only. Never set body text, labels, or numbers
   |---|---|
   | Partial / opened item | `gold-pale` badge with `espresso` text |
   | Expiring within 3 days | `clay` badge with white text |
-  | Ingredient you have (recipe page) | `olive` / `sage-pale` marker |
-  | Missing ingredient / shopping list | `ash` text, `hairline` divider |
+  | Ingredient you have (recipe page) | `sage-pale` badge with `forest` text (olive text on sage-pale is below AA) |
+  | Missing ingredient / shopping list | `hairline` border or divider; `stone` text for anything essential (`ash` only for non-essential captions) |
   | Leftovers before → after | "Before" in `gold`, "after" in `olive`; show it as a `stat-badge` pair |
-- `error` is only for validation errors and destructive confirmation. Use it for the input border **only when the field is invalid**, not on focus.
+- `error` is only for validation errors and destructive confirmation. Use it for the input border **only when the field is invalid**, not on focus. Error message text is `ink`: `error` on white or canvas is below AA for small text.
 
 ### Components
 - Buttons: fully rounded pills (`rounded.full`), `typography.button`, at least 44px tall.

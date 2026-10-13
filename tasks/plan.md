@@ -58,22 +58,22 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Files:** `.github/workflows/ci.yml`
 **Scope:** S
 
-#### Task 3: Design tokens, fonts, app shell
+#### Task 3: Design tokens, fonts, app shell ✅
 **Description:** Port DESIGN.md front-matter tokens to `src/styles/globals.css` (Tailwind v4 `@theme`, same names). Load Fraunces 300 and Inter via `next/font/google`. Root layout: canvas background, max-width ~1120px container, `nav-bar` with links to Pantry / Suggest / Plan.
 **Acceptance criteria:**
-- [ ] Every DESIGN.md color, type, radius, spacing token exists as a CSS variable / Tailwind utility
-- [ ] No raw hex or px font sizes outside `globals.css`
-- [ ] Shell works at 375px with no horizontal scroll
+- [x] Every DESIGN.md color, type, radius, spacing token exists as a CSS variable / Tailwind utility
+- [x] No raw hex or px font sizes outside `globals.css`
+- [x] Shell works at 375px with no horizontal scroll
 **Verification:** visual check at 375 / 768 / 1280px; `grep -rE "#[0-9a-f]{3,6}" src/components src/app` returns nothing.
 **Dependencies:** T1
 **Files:** `src/styles/globals.css`, `src/app/layout.tsx`, `src/components/NavBar.tsx`
 **Scope:** S
 
-#### Task 4: UI primitives
+#### Task 4: UI primitives ✅
 **Description:** `Button` (primary / secondary / outline-stone, pill, ≥44px), `Card` (feature-card), `Input` + `Label` (white, hairline, stone focus ring, error border only when invalid), `Badge` (opened / expiring / have / missing variants, always with text), `StatBadgePair` (before gold → after olive), `EmptyState`, `Toast`.
 **Acceptance criteria:**
-- [ ] Each primitive uses tokens only and has a visible 2px-offset stone focus ring
-- [ ] Badge variants match the CLAUDE.md color-role table
+- [x] Each primitive uses tokens only and has a visible 2px-offset stone focus ring
+- [x] Badge variants match the CLAUDE.md color-role table
 **Verification:** a temporary `/dev/ui` page (deleted in T21) or component tests rendering each variant; keyboard-tab through it.
 **Dependencies:** T3
 **Files:** `src/components/ui/{Button,Card,Input,Badge,StatBadgePair,EmptyState,Toast}.tsx`
