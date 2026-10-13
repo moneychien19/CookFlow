@@ -79,12 +79,12 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Files:** `src/components/ui/{Button,Card,Input,Badge,StatBadgePair,EmptyState,Toast}.tsx`
 **Scope:** M
 
-#### Task 5: Planner — quantities and scoring
+#### Task 5: Planner — quantities and scoring ✅
 **Description:** In `src/lib/planner`: zod-free plain types (`PantryEntry`, `RecipeEntry`), hundredths helpers, `isPartial`, `urgency(expiresOn, today)`, `coverage`, `use`, `newPartial`, `missing`, `score`. Weights and the 0.6 threshold in `constants.ts`. Staples ignored.
 **Acceptance criteria:**
-- [ ] Tests (factory fixtures): partial preferred over full; expiring preferred over fresh; a 2-onion recipe uses at most 0.5 of a 0.5 onion; below-threshold recipes score as skipped
-- [ ] `1 - 0.5 - 0.5` is treated as 0, not partial
-- [ ] No `Date.now()`, randomness, or I/O in the module
+- [x] Tests (factory fixtures): partial preferred over full; expiring preferred over fresh; a 2-onion recipe uses at most 0.5 of a 0.5 onion; below-threshold recipes score as skipped
+- [x] `1 - 0.5 - 0.5` is treated as 0, not partial
+- [x] No `Date.now()`, randomness, or I/O in the module
 **Verification:** `npm test -- src/lib/planner`
 **Dependencies:** T1
 **Files:** `src/lib/planner/{types,quantity,constants,score}.ts`, `src/lib/planner/score.test.ts`, `src/lib/planner/fixtures.ts`
