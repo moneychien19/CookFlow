@@ -52,15 +52,16 @@ users, accounts, sessions          -- managed by Auth.js adapter
 ingredients
   id            serial pk
   name          text unique          -- canonical, lowercase: "onion", "egg", "chicken breast"
-  unit          text                 -- canonical practical unit: "whole" | "pack" | "bunch" | "clove" | "count"
+  unit          text                 -- canonical unit: "whole" | "pack" | "bunch" | "clove" | "count" | "g" | "ml"
   is_staple     boolean default false  -- salt, pepper, oil, water: ignored by planner
 
 pantry_items
   id            serial pk
   user_id       fk users
   ingredient_id fk ingredients
-  quantity      numeric(6,2)         -- in ingredient.unit; 0.5 onion = 0.50
+  quantity      numeric(8,2)         -- in ingredient.unit; 0.5 onion = 0.50, 300 g chicken = 300.00
   expires_on    date null
+  opened        boolean default false  -- opened or partly used; see "Opened item" below
   updated_at    timestamptz
   unique (user_id, ingredient_id)
 
@@ -77,7 +78,7 @@ recipes
 recipe_ingredients
   recipe_id     fk recipes
   ingredient_id fk ingredients
-  quantity      numeric(6,2)         -- same canonical unit as ingredients.unit; planner only
+  quantity      numeric(8,2)         -- same canonical unit as ingredients.unit; planner only
   source_name   text                 -- ingredient name exactly as the source wrote it (§7a #9)
   source_measure text                -- measure exactly as the source wrote it, e.g. "1/2 cup chopped" (§7a #9)
   primary key (recipe_id, ingredient_id)
@@ -99,13 +100,22 @@ meal_plan_items
 ```
 
 ### Quantity model (the key simplification)
-Every ingredient has **one** canonical practical unit. Pantry and recipes both use it. No conversion at runtime.
+Every ingredient has **one** canonical unit. Pantry and recipes both use it. No conversion at runtime.
 
-- "half an onion" → `onion, 0.5 whole`
-- "six eggs" → `egg, 6 count`
-- "a box of chicken" → `chicken breast, 1 pack`
+The unit follows how people and recipes measure that food:
+- Produce, herbs, eggs are counted: "half an onion" → `onion, 0.5 whole`; "six eggs" → `egg, 6 count`; "garlic" → `clove`.
+- Meat, fish, cheese, and dry goods (rice, pasta) are weighed: "a 450 g pack of chicken" → `chicken breast, 450 g`. Recipes give these in weight too, so the import converts less.
+- Milk and cream are measured: `milk, 1000 ml`.
 
-**Hard-to-use leftover:** a pantry item with `0 < quantity < 1` in a `whole`/`pack`/`bunch` unit — i.e. something already opened or cut.
+The import converts a recipe's measure into the ingredient's unit once ("2 chicken breasts" → 400 g); the planner never converts.
+
+**Opened item:** a pantry item that is
+- flagged `opened` (the user ticks "opened" when adding it, or "mark cooked" left some of a `g`/`ml` item, §6), or
+- counted in `whole`/`pack`/`bunch` with `0 < quantity < 1`, i.e. something already cut. Counted items don't use the flag: using 1 of 3 onions leaves 2 whole ones.
+
+A weight alone can't tell a leftover from a smaller pack (300 g could be either), which is why weighed items need the flag.
+
+**Hard-to-use leftover:** a non-staple opened item.
 
 Recipe pages display `source_name` + `source_measure` (exact source text). The canonical `quantity` is used only by the planner and by "mark cooked".
 
@@ -129,7 +139,7 @@ Why not call the API live: rate limits, inconsistent formats, and latency. The p
 ## 5. Multi-meal planner
 
 ### Input
-- `P`: pantry, `ingredient_id → { qty, expires_on }`
+- `P`: pantry, `ingredient_id → { qty, unit, opened, expires_on }`
 - `N`: number of meals (2–5)
 - `R`: candidate recipes after the dietary filter
 
@@ -141,7 +151,7 @@ repeat N times:
   best = argmax over r in R \ plan of score(r, P')
   if best is null: break
   plan.append(best)
-  P' = deduct(P', best)        # simulate cooking it
+  P' = deduct(P', best)        # simulate cooking it; a g/ml item with some left becomes opened
 return plan, leftovers(P), leftovers(P'), shopping_list
 ```
 
@@ -154,11 +164,12 @@ if coverage(r) < 0.6: skip
 
 use(r)        = Σ_i  (min(need_i, have_i) / have_i) × w_i      # share of item i used up, 0..1
   w_i         = 1
-              + α · [item i is partial (0 < have_i < 1)]     # prioritize opened items
+              + α · [item i is opened (§3)]                     # prioritize opened items
               + β · urgency(expires_on_i)                     # 0..1, higher when expiring soon
 
-newPartial(r) = count of items that would become partial (0 < remaining < 1) after r
-                # only items that were not already partial; 0.75 → 0.25 isn't new
+newPartial(r) = count of items that would become opened after r, i.e. not opened before
+                # a g/ml item that r uses only part of; a counted item that drops to 0 < remaining < 1
+                # 0.75 → 0.25 isn't new
 missing(r)    = count of ingredients of r not in P'
 
 score(r)      = use(r) − γ · newPartial(r) − δ · missing(r)
@@ -204,7 +215,7 @@ Kept deliberately:
 
 Single DB transaction:
 1. `SELECT ... FOR UPDATE` the plan item; if `status = 'cooked'` → return (idempotent, no double deduction).
-2. For each non-staple recipe ingredient: `quantity = max(0, quantity − need)`; delete rows that reach 0.
+2. For each non-staple recipe ingredient: `quantity = max(0, quantity − need)`; delete rows that reach 0. Set `opened = true` on `g`/`ml` rows that have some left (§3, "Opened item").
 3. Set `status = 'cooked'`, `cooked_at = now()`.
 
 Test: calling it twice deducts once.
@@ -216,7 +227,7 @@ Test: calling it twice deducts once.
 | Route | Purpose |
 |---|---|
 | `/` | Landing + sign in; a short "why" in one paragraph |
-| `/pantry` | List / add / edit / delete items; partial and expiring items highlighted |
+| `/pantry` | List / add / edit / delete items (with an "opened" checkbox); opened and expiring items highlighted |
 | `/suggest` | Single-meal suggestions ranked by score |
 | `/plan/new` | Choose N + dietary filter → generate |
 | `/plan/[id]` | Meals in order, leftovers before → after, shopping list, "mark cooked" |

@@ -39,7 +39,7 @@ The planner is a greedy loop with simulated pantry depletion. In each round it s
 score(r) = use(r) − γ·newPartial(r) − δ·missing(r)
 ```
 
-- `use(r)`: how much of the pantry the recipe uses up, as the share of each item it finishes (so 4 garlic cloves don't outweigh a pack of chicken). Each item is weighted higher if it's already opened (partial) or expires soon.
+- `use(r)`: how much of the pantry the recipe uses up, as the share of each item it finishes (so 4 garlic cloves don't outweigh a pack of chicken). Each item is weighted higher if it's already opened or expires soon.
 - `newPartial(r)`: penalty for each item the recipe would leave half-used.
 - `missing(r)`: penalty for each ingredient you'd have to buy.
 
@@ -67,11 +67,12 @@ flowchart LR
 
 | Decision | Why | Cost |
 |---|---|---|
-| One canonical practical unit per ingredient | No runtime unit conversion; matches how people actually describe their fridge | Can't express "200g of chicken" precisely |
+| One canonical unit per ingredient, chosen per food: counts for produce, grams for meat, fish, cheese, and dry goods, millilitres for milk and cream | No runtime unit conversion; matches how people describe their fridge and how recipes measure each food | Converting recipe measures like "2 chicken breasts" into grams is an estimate made once, at import |
+| An "opened" flag on pantry items | A weight can't tell a leftover from a smaller pack, so opened items are recorded, not guessed | One more field to fill in when adding an item |
 | Keep the recipe's original measure text alongside the canonical quantity | Recipes show ingredients exactly as the source wrote them; the planner uses the normalized number | Two representations of each quantity to keep in sync in the seed |
 | Seeded recipe set instead of a live API | Deterministic, fast, no rate limits; the planner needs all candidates in memory | Smaller recipe variety (~_<n>_ recipes) |
 | Greedy planner | Simple, explainable, testable | Can miss the globally best combination |
-| Leftovers measured as a count of opened items, not grams | Works with practical units; no scale needed | A proxy for the workbook's 400 g → 200 g metric, not the same number |
+| Leftovers measured as a count of opened items, not grams | Comparable across foods with different units | Doesn't capture how much of an item is left, only that it's open |
 | Idempotent "mark cooked" in a transaction | Double clicks or retries never double-deduct the pantry | — |
 
 ## Running locally

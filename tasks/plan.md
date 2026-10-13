@@ -130,6 +130,17 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Files:** `seed/{schema,seed}.ts`, `seed/ingredients.json`, `seed/recipes.json`, `seed/sample-pantry.json`
 **Scope:** M
 
+#### Task 8a: Weighed units and the opened flag in the planner and seed
+**Description:** Follow-up to the `g`/`ml` units and `pantry_items.opened` column (migration `0001_gram_units`). Teach the planner SPEC §3's "opened item" rule (flag, or counted item with `0 < qty < 1`) for the α bonus, `newPartial`, and the hard-to-use count, and set `opened` on simulated `g`/`ml` items with some left. Move the seed's meat, fish, cheese, rice, and pasta to grams and milk/cream to millilitres; the sample pantry gets `opened` flags.
+**Acceptance criteria:**
+- [ ] An opened 300 g chicken gets the α bonus; a sealed one doesn't
+- [ ] Using 200 g of a sealed 500 g item counts as one new opened item; using 1 of 3 onions doesn't
+- [ ] Seed and sample pantry validate with the new units; data tests still plan 3 meals that reduce opened items
+**Verification:** `npm test`
+**Dependencies:** T5–T8
+**Files:** `src/lib/planner/*`, `seed/*.json`, `seed/schema.ts`, `seed/planner-input.ts`
+**Scope:** M
+
 #### Task 9: TheMealDB import — fetch and rule-based mapping
 **Description:** Offline script that pulls ~100 recipes from TheMealDB (zod-validated response), keeps `strIngredientN`/`strMeasureN` verbatim as `source_name`/`source_measure` and `strInstructions` whole, and maps measures with rules (`"1/2"` → 0.5, `"2 cloves"` → 2 clove, ...). Writes a draft file plus a list of unmapped lines.
 **Acceptance criteria:**
@@ -168,7 +179,7 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Description:** `/pantry` Server Component listing the user's items (table on desktop, cards on mobile) with Opened / Expires-in badges. Empty pantry shows `EmptyState` with the blue "Load sample pantry" Server Action.
 **Acceptance criteria:**
 - [ ] Single indexed query scoped by session `user_id`
-- [ ] Partial and ≤3-day-expiry items carry text badges
+- [ ] Opened (SPEC §3) and ≤3-day-expiry items carry text badges
 - [ ] Loading the sample pantry replaces the current pantry (so it doubles as the demo reset) and never duplicates rows
 - [ ] On a non-empty pantry, "Load sample pantry" is a secondary button behind a confirmation
 **Verification:** manual as the demo user; a query test against a Neon branch for user scoping.
@@ -177,7 +188,7 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Scope:** M
 
 #### Task 13: Pantry add / edit / delete
-**Description:** Add form with ingredient picker (canonical list, unit shown), quantity, optional expiry; inline edit and delete with confirmation. All Server Actions follow the four CLAUDE.md rules; quantities rounded to 2 dp.
+**Description:** Add form with ingredient picker (canonical list, unit shown), quantity, optional expiry, an "opened" checkbox; inline edit and delete with confirmation. All Server Actions follow the four CLAUDE.md rules; quantities rounded to 2 dp.
 **Acceptance criteria:**
 - [ ] Invalid quantity (≤ 0, non-number) shows a field error, nothing written
 - [ ] Adding an ingredient already in the pantry updates it instead of failing on the unique constraint
