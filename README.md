@@ -77,7 +77,7 @@ flowchart LR
 ## Running locally
 
 ```bash
-cp .env.example .env.local   # DATABASE_URL, AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET
+cp .env.example .env.local   # DATABASE_URL (use a Neon dev branch, not production), AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET
 npm install
 npm run db:migrate
 npm run db:seed

@@ -86,14 +86,14 @@ meal_plans
   id            serial pk
   user_id       fk users
   created_at    timestamptz
-  leftovers_before numeric           -- snapshot for the before/after display
-  leftovers_after  numeric
+  leftovers_before int               -- count of hard-to-use leftovers, snapshot for the before/after display
+  leftovers_after  int
 
 meal_plan_items
   plan_id       fk meal_plans
   position      int                  -- 1..N
   recipe_id     fk recipes
-  status        text                 -- "planned" | "cooked" | "skipped"
+  status        text                 -- "planned" | "cooked" | "skipped" (CHECK constraint; default "planned")
   cooked_at     timestamptz null
   primary key (plan_id, position)
 ```
