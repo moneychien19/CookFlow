@@ -40,3 +40,11 @@ export type ScoreResult =
       newPartial: number;
       missing: number;
     };
+
+export type Dietary = "vegetarian";
+
+export type PlannerOptions = {
+  /** "Today" as an ISO date; passed in so the planner stays deterministic. */
+  today: IsoDate;
+  dietary?: Dietary | null;
+};

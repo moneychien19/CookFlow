@@ -155,6 +155,7 @@ use(r)        = Σ_i  min(need_i, have_i) × w_i
               + β · urgency(expires_on_i)                     # 0..1, higher when expiring soon
 
 newPartial(r) = count of items that would become partial (0 < remaining < 1) after r
+                # only items that were not already partial; 0.75 → 0.25 isn't new
 missing(r)    = count of ingredients of r not in P'
 
 score(r)      = use(r) − γ · newPartial(r) − δ · missing(r)
@@ -164,10 +165,12 @@ Starting weights: `α = 2, β = 1, γ = 1, δ = 1.5`. Tune by hand against 3–4
 
 `urgency(d) = clamp(1 − days_until(d) / 7, 0, 1)`; no expiry → 0.
 
+A recipe made only of staples has coverage 0 and is skipped. Scores within `1e-9` are a tie; the recipe earlier in the input order wins, so results are deterministic.
+
 ### Output
 - Ordered meals
 - **Projected hard-to-use leftovers: before → after**
-- Shopping list = missing ingredients across the plan
+- Shopping list = missing ingredients across the plan, including shortfalls (needs 2 onions, have 0.5 → buy 1.5), summed across meals; staples excluded
 
 ### Why greedy instead of an optimal solver (README material)
 - Exact selection is a set-packing / ILP problem. With ~100 recipes and N ≤ 5 it's solvable, but greedy is explainable to users ("we used your half onion first") and fast enough to meet §7a #3 trivially: O(N · |R| · k).

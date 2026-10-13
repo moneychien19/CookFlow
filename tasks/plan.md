@@ -90,12 +90,12 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Files:** `src/lib/planner/{types,quantity,constants,score}.ts`, `src/lib/planner/score.test.ts`, `src/lib/planner/fixtures.ts`
 **Scope:** M
 
-#### Task 6: Planner — greedy loop and outputs
+#### Task 6: Planner — greedy loop and outputs ✅
 **Description:** `planMeals(pantry, recipes, n, { today, dietary })` → ordered meals, leftovers before/after (count), shopping list, plus `suggestMeals(...)` for N = 1 ranking. Dietary filter applied to candidates.
 **Acceptance criteria:**
-- [ ] Every SPEC §5 test exists and passes, including the documented greedy-suboptimal fixture and the dietary-filter test
-- [ ] Simulated depletion: the same ingredient isn't double-counted across meals
-- [ ] Benchmark: N = 5 over 100 generated recipes runs in well under 5 s (assert < 500 ms)
+- [x] Every SPEC §5 test exists and passes, including the documented greedy-suboptimal fixture and the dietary-filter test
+- [x] Simulated depletion: the same ingredient isn't double-counted across meals
+- [x] Benchmark: N = 5 over 100 generated recipes runs in well under 5 s (assert < 500 ms)
 **Verification:** `npm test -- src/lib/planner`
 **Dependencies:** T5
 **Files:** `src/lib/planner/{plan,suggest,index}.ts`, `src/lib/planner/plan.test.ts`, `src/lib/planner/bench.test.ts`

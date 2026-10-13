@@ -14,3 +14,6 @@ export const COVERAGE_THRESHOLD = 0.6;
 
 /** Urgency falls from 1 (expires today) to 0 over this many days. */
 export const URGENCY_HORIZON_DAYS = 7;
+
+/** Scores closer than this are a tie; the earlier recipe in input order wins. */
+export const SCORE_EPSILON = 1e-9;
