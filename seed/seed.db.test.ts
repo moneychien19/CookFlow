@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { afterAll, describe, expect, it } from "vitest";
-import { createDb } from "@/lib/db/client";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createDb, type Db } from "@/lib/db/client";
 import { recipeIngredients, recipes } from "@/lib/db/schema";
 import { readSeedFiles } from "./read";
 import { parseSeed } from "./schema";
@@ -10,12 +10,16 @@ import { seedDatabase } from "./seed";
 const url = process.env.TEST_DATABASE_URL;
 
 describe.skipIf(!url)("seedDatabase (real Postgres)", () => {
-  const db = createDb(url ?? "");
+  // Connect in beforeAll, not here: the describe body still runs when the suite is skipped.
+  let db: Db;
+  beforeAll(() => {
+    db = createDb(url ?? "");
+  });
+  afterAll(() => db.$client.end());
+
   const parsed = parseSeed(readSeedFiles());
   if (!parsed.ok) throw new Error(parsed.error);
   const seed = parsed.data;
-
-  afterAll(() => db.$client.end());
 
   it("leaves the same row counts when run twice", async () => {
     const first = await seedDatabase(db, seed);
