@@ -48,11 +48,11 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Files:** `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `vitest.config.ts`, `.env.example`, `src/app/layout.tsx`, `src/app/page.tsx`
 **Scope:** M
 
-#### Task 2: CI and auto-deploy
+#### Task 2: CI and auto-deploy ✅
 **Description:** GitHub Actions workflow running typecheck, lint, test on every push. Connect the repo to Vercel (preview per PR, production on `main`) and add a Neon database with `DATABASE_URL` in Vercel env.
 **Acceptance criteria:**
-- [ ] A push triggers the workflow and it goes green
-- [ ] `main` deploys to a Vercel URL; PRs get preview URLs
+- [x] A push triggers the workflow and it goes green
+- [x] `main` deploys to a Vercel URL; PRs get preview URLs
 **Verification:** push a branch, open a PR, check Actions + Vercel preview.
 **Dependencies:** T1. **Needs you:** Vercel + Neon accounts linked to `moneychien19/CookFlow`.
 **Files:** `.github/workflows/ci.yml`
