@@ -13,13 +13,12 @@ import {
   timestamp,
   unique,
 } from "drizzle-orm/pg-core";
+import type { AdapterAccountType } from "next-auth/adapters";
 import { UNITS, type Unit } from "@/lib/planner/types";
 
 export const MEAL_STATUSES = ["planned", "cooked", "skipped"] as const;
 export type MealStatus = (typeof MEAL_STATUSES)[number];
 
-/** Same values as Auth.js's AdapterAccountType; local until Auth.js is installed (Task 11). */
-type AdapterAccountType = "oauth" | "oidc" | "email" | "webauthn";
 
 /** `'a', 'b', ...` for an IN (...) check. Values are our own constants, never user input. */
 const sqlList = (values: readonly string[]) => sql.raw(values.map((v) => `'${v}'`).join(", "));

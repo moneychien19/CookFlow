@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDb, type Db } from "@/lib/db/client";
-import { recipeIngredients, recipes } from "@/lib/db/schema";
+import { DEMO_USER_ID } from "@/lib/demo";
+import { recipeIngredients, recipes, users } from "@/lib/db/schema";
 import { readSeedFiles } from "./read";
 import { parseSeed } from "./schema";
 import { seedDatabase } from "./seed";
@@ -37,5 +38,11 @@ describe.skipIf(!url)("seedDatabase (real Postgres)", () => {
     expect(lines.map((l) => [l.sourceName, l.sourceMeasure, l.quantity]).sort()).toEqual(
       expected.ingredients.map((l) => [l.sourceName, l.sourceMeasure, l.quantity]).sort(),
     );
+  });
+
+  it("creates the shared demo user with no personal data", async () => {
+    await seedDatabase(db, seed);
+    const [demo] = await db.select().from(users).where(eq(users.id, DEMO_USER_ID));
+    expect(demo).toMatchObject({ id: DEMO_USER_ID, name: "Demo", email: null, image: null });
   });
 });

@@ -78,7 +78,8 @@ flowchart LR
 ## Running locally
 
 ```bash
-cp .env.example .env.local   # DATABASE_URL (use a Neon dev branch, not production), AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET
+cp .env.example .env.local   # DATABASE_URL (use a Neon dev branch, not production), AUTH_SECRET,
+                             # AUTH_GITHUB_ID/SECRET, AUTH_GOOGLE_ID/SECRET (see "Sign-in setup" below)
                              # TEST_DATABASE_URL (optional): runs the *.db.test.ts tests against that database
 npm install
 npm run db:migrate
@@ -86,3 +87,14 @@ npm run db:seed
 npm run dev
 npm test
 ```
+
+### Sign-in setup
+
+"Try the demo" works without any of this. For real sign-in, create one OAuth app per provider for local development and another for production, so a leaked local secret can't sign in to the live site. Each environment reads the same variable names: `.env.local` locally, Vercel's Production environment variables in production.
+
+| Provider | Where | Callback URL |
+|---|---|---|
+| GitHub | GitHub → Settings → Developer settings → OAuth Apps; homepage `http://localhost:3000` or your domain | `http://localhost:3000/api/auth/callback/github` (local), `https://<your-domain>/api/auth/callback/github` (production) |
+| Google | Google Cloud console → Google Auth Platform → Clients → Web application (External audience; add yourself as a test user or publish the app) | `http://localhost:3000/api/auth/callback/google` (local), `https://<your-domain>/api/auth/callback/google` (production) |
+
+On Vercel, set `AUTH_SECRET` and the provider ids and secrets for Production. Preview deployments get a new URL each time, so OAuth sign-in isn't set up there; use the demo on previews.

@@ -35,7 +35,7 @@
 
 - **Next.js (App Router) + TypeScript**
 - **Postgres on Neon**, **Drizzle** or **Prisma** ORM
-- **Auth.js** (GitHub provider is fastest; Google optional)
+- **Auth.js** v5 with GitHub and Google sign-in and database sessions (Drizzle adapter)
 - **Vercel** for hosting (preview deploys per PR)
 - **Vitest** for planner unit tests
 - **GitHub Actions**: typecheck, lint, test on every push
@@ -237,6 +237,8 @@ User flow: view pantry (`/pantry`) → review recommendations (`/suggest`, `/pla
 
 Add a **demo account or "load sample pantry" button** so reviewers can try it without setting anything up. This matters more than any extra feature. It also covers §7a #4 (first-time use without help) and #8 (core features without giving PII).
 
+**Shared demo account.** "Try the demo" on `/` sets an httpOnly `cookflow-demo` cookie and opens `/pantry` as one seeded demo user (id `demo`, no email). It's not an Auth.js provider: the server checks the cookie. Every page and Server Action gets the user from `requireUserId()`: the signed-in user, else the demo user if the cookie is set, else a redirect to `/`. A session always wins over the cookie, and signing in or out clears it. All demo visitors share one pantry and plan list; "Load sample pantry" resets it.
+
 ---
 
 ## 7a. Non-functional requirements
@@ -250,7 +252,7 @@ Add a **demo account or "load sample pantry" button** so reviewers can try it wi
 | 5 | Availability | ≥ 99% / month | Vercel + Neon managed hosting; no self-run infra |
 | 6 | Compatibility | Latest 2 versions of Chrome, Safari, Edge (desktop) | Manual check in all three before submitting |
 | 7 | Security | Low level | Auth.js sessions; every query is scoped by `user_id` |
-| 8 | Privacy | Low; core features must not require PII | Demo account / sample pantry works without signing in; OAuth stores only provider id, name, and email |
+| 8 | Privacy | Low; core features must not require PII | Demo account / sample pantry works without signing in; OAuth stores only the provider account id, name, and email (no avatar, no provider tokens) |
 | 9 | Accuracy | Show recipe ingredient names and quantities exactly as the source gives them | `source_name` / `source_measure` columns (§3) |
 | 10 | Safety | Show source food-safety instructions without omission | Full `instructions` text stored and shown; never truncated (§4) |
 | 11 | Interoperability | Process structured recipe data from the external source | TheMealDB → normalized `seed/recipes.json` (§4) |

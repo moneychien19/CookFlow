@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { AccountStatus } from "./AccountStatus";
 
 const LINKS = [
   { href: "/pantry", label: "Pantry" },
@@ -28,6 +30,9 @@ export function NavBar() {
             </li>
           ))}
         </ul>
+        <Suspense fallback={null}>
+          <AccountStatus />
+        </Suspense>
       </nav>
     </header>
   );

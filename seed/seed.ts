@@ -1,6 +1,7 @@
 import { count, inArray, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { ingredients, recipeIngredients, recipes } from "@/lib/db/schema";
+import { ingredients, recipeIngredients, recipes, users } from "@/lib/db/schema";
+import { DEMO_USER_ID } from "@/lib/demo";
 import type { SeedData } from "./schema";
 
 export type SeedCounts = { ingredients: number; recipes: number; recipeIngredients: number };
@@ -8,10 +9,12 @@ export type SeedCounts = { ingredients: number; recipes: number; recipeIngredien
 /**
  * Upserts validated seed data in one transaction. Idempotent: ingredients match
  * on name, recipes on (source, source_id), and each seeded recipe's ingredient
- * lines are replaced. Rows not in the seed files are left alone.
+ * lines are replaced. Rows not in the seed files are left alone. Also creates
+ * the shared demo user, which has no email or image.
  */
 export async function seedDatabase(db: Db, seed: SeedData): Promise<SeedCounts> {
   return db.transaction(async (tx) => {
+    await tx.insert(users).values({ id: DEMO_USER_ID, name: "Demo" }).onConflictDoNothing();
     await tx
       .insert(ingredients)
       .values(seed.ingredients)
