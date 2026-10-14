@@ -24,7 +24,6 @@ npm run lint         # eslint
 npm test             # vitest run
 npm run db:generate  # generate a migration after changing lib/db/schema.ts
 npm run db:migrate   # apply migrations
-npm run db:seed      # validate seed/*.json and upsert ingredients + recipes (idempotent)
 ```
 
 Before calling a task done, run `npm run typecheck && npm run lint && npm test`; all three must pass (CI runs the same).
@@ -40,7 +39,6 @@ src/
   lib/db/              # schema, client, queries
   lib/auth.ts          # Auth.js config
   styles/globals.css   # design tokens (see below)
-seed/                  # recipes.json, ingredients.json, seed script
 tests/ or *.test.ts    # Vitest, colocated next to the code is fine
 ```
 

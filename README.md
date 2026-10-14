@@ -83,7 +83,6 @@ cp .env.example .env.local   # DATABASE_URL (use a Neon dev branch, not producti
                              # TEST_DATABASE_URL (optional): runs the *.db.test.ts tests against that database
 npm install
 npm run db:migrate
-npm run db:seed
 npm run dev
 npm test
 ```

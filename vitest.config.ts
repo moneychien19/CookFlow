@@ -14,6 +14,6 @@ export default defineConfig({
   },
   test: {
     env: testDatabaseUrl ? { TEST_DATABASE_URL: testDatabaseUrl } : {},
-    include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.ts", "seed/**/*.test.ts"],
+    include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.ts"],
   },
 });

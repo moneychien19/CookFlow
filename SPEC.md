@@ -237,7 +237,7 @@ User flow: view pantry (`/pantry`) → review recommendations (`/suggest`, `/pla
 
 Add a **demo account or "load sample pantry" button** so reviewers can try it without setting anything up. This matters more than any extra feature. It also covers §7a #4 (first-time use without help) and #8 (core features without giving PII).
 
-**Shared demo account.** "Try the demo" on `/` sets an httpOnly `cookflow-demo` cookie and opens `/pantry` as one seeded demo user (id `demo`, no email). It's not an Auth.js provider: the server checks the cookie. Every page and Server Action gets the user from `requireUserId()`: the signed-in user, else the demo user if the cookie is set, else a redirect to `/`. A session always wins over the cookie, and signing in or out clears it. All demo visitors share one pantry and plan list; "Load sample pantry" resets it.
+**Shared demo account.** "Try the demo" on `/` sets an httpOnly `cookflow-demo` cookie and opens `/pantry` as one shared demo user (id `demo`, no email), which the same action creates if it doesn't exist yet. It's not an Auth.js provider: the server checks the cookie. Every page and Server Action gets the user from `requireUserId()`: the signed-in user, else the demo user if the cookie is set, else a redirect to `/`. A session always wins over the cookie, and signing in or out clears it. All demo visitors share one pantry and plan list; "Load sample pantry" resets it.
 
 ---
 
