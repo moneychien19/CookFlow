@@ -1,7 +1,7 @@
 /**
  * The shared demo account (SPEC §7, §7a #8): visitors who choose "Try the demo"
- * act as one seeded user with a fixed id and no personal data. No Next.js or
- * database imports here, so the seed script can use it too.
+ * act as one user with a fixed id and no personal data. No Next.js or database
+ * imports here, so it stays a plain constant module.
  */
 export const DEMO_USER_ID = "demo";
 export const DEMO_COOKIE = "cookflow-demo";
