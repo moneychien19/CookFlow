@@ -78,7 +78,8 @@ flowchart LR
 ## Running locally
 
 ```bash
-cp .env.example .env.local   # DATABASE_URL (use a Neon dev branch, not production), AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET
+cp .env.example .env.local   # DATABASE_URL (use a Neon dev branch, not production), AUTH_SECRET,
+                             # AUTH_GITHUB_ID/SECRET, AUTH_GOOGLE_ID/SECRET (see "Sign-in setup" below)
                              # TEST_DATABASE_URL (optional): runs the *.db.test.ts tests against that database
 npm install
 npm run db:migrate
@@ -86,3 +87,14 @@ npm run db:seed
 npm run dev
 npm test
 ```
+
+### Sign-in setup
+
+"Try the demo" works without any of this. For real sign-in, create an OAuth app per provider and environment, with these callback URLs:
+
+| Provider | Where | Callback URL |
+|---|---|---|
+| GitHub | GitHub → Settings → Developer settings → OAuth Apps (one app per URL; GitHub allows one callback each) | `http://localhost:3000/api/auth/callback/github` and `https://<your-domain>/api/auth/callback/github` |
+| Google | Google Cloud console → APIs & Services → Credentials → OAuth client ID (Web application) | `http://localhost:3000/api/auth/callback/google` and `https://<your-domain>/api/auth/callback/google` |
+
+On Vercel, set `AUTH_SECRET` and the provider ids and secrets for Production. Preview deployments get a new URL each time, so OAuth sign-in isn't set up there; use the demo on previews.
