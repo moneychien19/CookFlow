@@ -167,7 +167,7 @@ T1 scaffold ─┬─ T2 CI + deploy
 #### Task 11: Sign-in and demo access
 **Description:** Auth.js with the Drizzle adapter, GitHub and Google providers, database sessions. Seed the shared demo user (fixed id, no email). "Try the demo" sets the demo cookie; signing in or out clears it. A server-side `requireUserId()` helper every page and Server Action uses, per Architecture decisions.
 **Acceptance criteria:**
-- [ ] GitHub and Google sign-in work locally and on production (preview URLs change per deploy, so previews use the demo)
+- [ ] GitHub and Google sign-in work locally (done) and on production (preview URLs change per deploy, so previews use the demo)
 - [x] "Try the demo" lands on `/pantry` as the demo user with no PII collected
 - [x] Visitors with neither a session nor the demo cookie are redirected to `/`
 **Verification:** manual sign-in / sign-out / demo with both providers; check `users` rows.

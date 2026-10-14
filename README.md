@@ -90,11 +90,11 @@ npm test
 
 ### Sign-in setup
 
-"Try the demo" works without any of this. For real sign-in, create an OAuth app per provider and environment, with these callback URLs:
+"Try the demo" works without any of this. For real sign-in, create one OAuth app per provider for local development and another for production, so a leaked local secret can't sign in to the live site. Each environment reads the same variable names: `.env.local` locally, Vercel's Production environment variables in production.
 
 | Provider | Where | Callback URL |
 |---|---|---|
-| GitHub | GitHub → Settings → Developer settings → OAuth Apps (one app per URL; GitHub allows one callback each) | `http://localhost:3000/api/auth/callback/github` and `https://<your-domain>/api/auth/callback/github` |
-| Google | Google Cloud console → APIs & Services → Credentials → OAuth client ID (Web application) | `http://localhost:3000/api/auth/callback/google` and `https://<your-domain>/api/auth/callback/google` |
+| GitHub | GitHub → Settings → Developer settings → OAuth Apps; homepage `http://localhost:3000` or your domain | `http://localhost:3000/api/auth/callback/github` (local), `https://<your-domain>/api/auth/callback/github` (production) |
+| Google | Google Cloud console → Google Auth Platform → Clients → Web application (External audience; add yourself as a test user or publish the app) | `http://localhost:3000/api/auth/callback/google` (local), `https://<your-domain>/api/auth/callback/google` (production) |
 
 On Vercel, set `AUTH_SECRET` and the provider ids and secrets for Production. Preview deployments get a new URL each time, so OAuth sign-in isn't set up there; use the demo on previews.
