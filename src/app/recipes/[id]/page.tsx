@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { RecipeIngredients } from "@/components/RecipeIngredients";
 import { getDb } from "@/lib/db/client";
@@ -31,20 +30,9 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
       )}
       <h1 className="mt-xs font-serif text-heading-2">{recipe.title}</h1>
 
-      <div className="mt-xl grid gap-xl tablet:grid-cols-2 tablet:items-start">
-        {recipe.imageUrl && (
-          <Image
-            src={recipe.imageUrl}
-            alt={`${recipe.title}, as served`}
-            width={700}
-            height={700}
-            // Half the page from the tablet breakpoint (48rem), full width below it.
-            sizes="(min-width: 48rem) 50vw, 100vw"
-            className="h-auto w-full rounded-lg"
-            fetchPriority="high"
-          />
-        )}
-        <section aria-labelledby="ingredients-heading">
+      {/* No photo: TheMealDB's images may carry rights we haven't cleared. */}
+      <div className="mt-xl grid gap-xl tablet:grid-cols-5 tablet:items-start">
+        <section aria-labelledby="ingredients-heading" className="tablet:col-span-2">
           <h2 id="ingredients-heading" className="text-title">
             Ingredients
           </h2>
@@ -52,23 +40,23 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
             <RecipeIngredients ingredients={recipe.ingredients} pantry={pantry} />
           </div>
         </section>
-      </div>
 
-      <section aria-labelledby="steps-heading" className="mt-2xl">
-        <h2 id="steps-heading" className="text-title">
-          Steps
-        </h2>
-        {/* Every word of the source's instructions, never truncated (SPEC §7a #10). */}
-        {steps ? (
-          <ol className="mt-md flex list-decimal flex-col gap-md pl-lg text-body">
-            {steps.map((step, index) => (
-              <li key={index}>{step}</li>
-            ))}
-          </ol>
-        ) : (
-          <p className="mt-md whitespace-pre-line text-body">{recipe.instructions}</p>
-        )}
-      </section>
+        <section aria-labelledby="steps-heading" className="tablet:col-span-3">
+          <h2 id="steps-heading" className="text-title">
+            Steps
+          </h2>
+          {/* Every word of the source's instructions, never truncated (SPEC §7a #10). */}
+          {steps ? (
+            <ol className="mt-md flex list-decimal flex-col gap-md pl-lg text-body">
+              {steps.map((step, index) => (
+                <li key={index}>{step}</li>
+              ))}
+            </ol>
+          ) : (
+            <p className="mt-md whitespace-pre-line text-body">{recipe.instructions}</p>
+          )}
+        </section>
+      </div>
 
       {credit && (
         <p className="mt-2xl text-body-sm text-stone">

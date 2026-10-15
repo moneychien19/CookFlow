@@ -67,7 +67,7 @@ tests/ or *.test.ts    # Vitest, colocated next to the code is fine
   3. scope every query by the session's `user_id`. **Never trust a user id from the client.**
   4. call `revalidatePath` for affected routes.
 - Use `loading.tsx` / `error.tsx` / `not-found.tsx` per route segment rather than ad-hoc spinners.
-- Use `next/image` for recipe images (add TheMealDB's host to `images.remotePatterns`) and `next/font` for fonts.
+- Don't show recipe photos: TheMealDB's images may carry rights we haven't cleared (`recipes.image_url` is stored but unused). Use `next/font` for fonts.
 - Keep secrets in env vars read on the server only. Never prefix a secret with `NEXT_PUBLIC_`. Never commit `.env*` except `.env.example`.
 
 ## Database

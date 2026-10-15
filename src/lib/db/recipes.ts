@@ -9,7 +9,6 @@ export type RecipeDetail = {
   /** "themealdb" */
   source: string;
   sourceId: string;
-  imageUrl: string | null;
   instructions: string;
   tags: string[];
   ingredients: {
@@ -36,7 +35,6 @@ export async function getRecipe(db: Db, id: number): Promise<RecipeDetail | null
       title: recipes.title,
       source: recipes.source,
       sourceId: recipes.sourceId,
-      imageUrl: recipes.imageUrl,
       instructions: recipes.instructions,
       tags: recipes.tags,
     })

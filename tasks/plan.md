@@ -213,7 +213,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 ### Phase 4: Recommendations and cooking
 
 #### Task 14: Recipe detail page ✅
-**Description:** `/recipes/[id]`: image (`next/image`, TheMealDB host whitelisted), ingredients as `source_name` + `source_measure` with have / missing markers against the user's pantry, full instructions untruncated.
+**Description:** `/recipes/[id]`: no photo (possible rights issues, decided 2026-10-14), ingredients on the left and steps on the right, ingredients as `source_name` + `source_measure` with have / missing markers against the user's pantry, full instructions untruncated.
 **Acceptance criteria:**
 - [x] Ingredient text matches the source exactly; instructions shown in full
 - [x] Unknown id → `not-found.tsx` (status stays 200 because the page streams; Next.js adds `noindex`)
