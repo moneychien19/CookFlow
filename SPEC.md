@@ -203,6 +203,7 @@ Kept deliberately:
 
 ### Tests (Vitest)
 - Partial items are preferred over full ones, all else equal
+- An opened `g`/`ml` item gets the α bonus and a sealed one doesn't; using part of a sealed one counts as one new opened item, and the item stays opened for later meals
 - An expiring item is preferred over a fresh one
 - Simulated depletion: the same ingredient isn't double-counted across meals
 - A recipe that needs 2 onions doesn't "use" an onion you have 0.5 of beyond 0.5

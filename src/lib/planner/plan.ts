@@ -1,8 +1,8 @@
 import { SCORE_EPSILON } from "./constants";
 import { applyDietary } from "./filter";
-import { fromHundredths, isPartial, toHundredths } from "./quantity";
-import { score, simulatePantry } from "./score";
-import type { PantryEntry, PlannerOptions, RecipeEntry, SimPantry, Unit } from "./types";
+import { fromHundredths, toHundredths } from "./quantity";
+import { afterUse, isSimOpened, score, simulatePantry } from "./score";
+import type { PantryEntry, PlannerOptions, RecipeEntry, SimPantry } from "./types";
 
 export type PlannedMeal = { recipe: RecipeEntry; score: number };
 
@@ -15,13 +15,11 @@ export type PlanResult = {
   shoppingList: { ingredientId: number; quantity: number }[];
 };
 
-const HARD_TO_USE_UNITS: ReadonlySet<Unit> = new Set(["whole", "pack", "bunch"]);
-
-/** Non-staple items that are opened or cut: 0 < qty < 1 in a whole/pack/bunch unit. */
+/** Hard-to-use leftovers (SPEC §3): non-staple opened items. */
 export function countHardToUse(pantry: SimPantry): number {
   let count = 0;
   for (const item of pantry.values()) {
-    if (!item.isStaple && HARD_TO_USE_UNITS.has(item.unit) && isPartial(item.qty)) count += 1;
+    if (!item.isStaple && isSimOpened(item)) count += 1;
   }
   return count;
 }
@@ -38,7 +36,7 @@ function cook(pantry: SimPantry, recipe: RecipeEntry, shortfall: Map<number, num
     }
     if (!item) continue;
     if (have <= need) pantry.delete(ingredientId);
-    else pantry.set(ingredientId, { ...item, qty: have - need });
+    else pantry.set(ingredientId, afterUse(item, need));
   }
 }
 

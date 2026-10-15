@@ -12,6 +12,8 @@ const CATALOG: Record<string, { id: number; unit: Unit; isStaple?: boolean }> = 
   egg: { id: 8, unit: "count" },
   mushrooms: { id: 9, unit: "pack" },
   rice: { id: 10, unit: "pack" },
+  bacon: { id: 11, unit: "g" },
+  milk: { id: 12, unit: "ml" },
   salt: { id: 100, unit: "count", isStaple: true },
   pepper: { id: 101, unit: "count", isStaple: true },
 };
@@ -22,14 +24,14 @@ function lookup(name: string) {
   return entry;
 }
 
-type PantrySpec = Record<string, number | { qty: number; expiresOn: string }>;
+type PantrySpec = Record<string, number | { qty: number; expiresOn?: string; opened?: boolean }>;
 
 export function pantry(spec: PantrySpec): PantryEntry[] {
   return Object.entries(spec).map(([name, value]) => {
     const { id, unit, isStaple = false } = lookup(name);
-    const { qty, expiresOn } =
-      typeof value === "number" ? { qty: value, expiresOn: null } : value;
-    return { ingredientId: id, quantity: qty, unit, isStaple, expiresOn };
+    const { qty, expiresOn = null, opened = false } =
+      typeof value === "number" ? { qty: value } : value;
+    return { ingredientId: id, quantity: qty, unit, isStaple, expiresOn, opened };
   });
 }
 
