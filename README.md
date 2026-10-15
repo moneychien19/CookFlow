@@ -59,7 +59,7 @@ flowchart LR
   N --> A[Auth.js]
   N --> P[Planner<br/>pure TS module]
   N --> DB[(Postgres / Neon)]
-  S[Seed script] -->|TheMealDB → normalized JSON| DB
+  S[CookFlow-Ingest<br/>separate repo] -->|TheMealDB → normalized recipes| DB
   GH[GitHub Actions<br/>typecheck · lint · test] --> N
 ```
 
@@ -69,8 +69,8 @@ flowchart LR
 |---|---|---|
 | One canonical unit per ingredient, chosen per food: counts for produce, grams for meat, fish, cheese, and dry goods, millilitres for milk and cream | No runtime unit conversion; matches how people describe their fridge and how recipes measure each food | Converting recipe measures like "2 chicken breasts" into grams is an estimate made once, at import |
 | An "opened" flag on pantry items | A weight can't tell a leftover from a smaller pack, so opened items are recorded, not guessed | One more field to fill in when adding an item |
-| Keep the recipe's original measure text alongside the canonical quantity | Recipes show ingredients exactly as the source wrote them; the planner uses the normalized number | Two representations of each quantity to keep in sync in the seed |
-| Seeded recipe set instead of a live API | Deterministic, fast, no rate limits; the planner needs all candidates in memory | Smaller recipe variety (~_<n>_ recipes) |
+| Keep the recipe's original measure text alongside the canonical quantity | Recipes show ingredients exactly as the source wrote them; the planner uses the normalized number | Two representations of each quantity to keep in sync at import |
+| Recipes imported offline instead of a live API | Deterministic, fast, no rate limits; the planner needs all candidates in memory | Smaller recipe variety (~150 recipes) |
 | Greedy planner | Simple, explainable, testable | Can miss the globally best combination |
 | Leftovers measured as a count of opened items, not grams | Comparable across foods with different units | Doesn't capture how much of an item is left, only that it's open |
 | Idempotent "mark cooked" in a transaction | Double clicks or retries never double-deduct the pantry | — |

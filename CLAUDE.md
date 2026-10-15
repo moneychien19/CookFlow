@@ -46,7 +46,7 @@ tests/ or *.test.ts    # Vitest, colocated next to the code is fine
 
 - `strict: true`, plus `noUncheckedIndexedAccess`. No `any`; use `unknown` and narrow it. No `@ts-ignore`; if you really need one, use `@ts-expect-error` with a reason.
 - Prefer `type` aliases and discriminated unions over enums. Status values are string-literal unions: `type MealStatus = "planned" | "cooked" | "skipped"`.
-- Validate every external input (form data, route params, seed JSON, TheMealDB responses) with **zod** at the boundary. Infer types from schemas (`z.infer`) instead of writing them twice.
+- Validate every external input (form data, route params, search params) with **zod** at the boundary. Infer types from schemas (`z.infer`) instead of writing them twice.
 - Functions in `lib/` return plain data. Throw only for programmer errors; return a result (`{ ok: false, error }`) for expected failures like validation.
 - Named exports only, except where Next.js requires a default export (`page.tsx`, `layout.tsx`, ...).
 - Imports use the `@/` alias rooted at `src/`.
