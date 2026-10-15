@@ -183,7 +183,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 **Description:** `/pantry` Server Component listing the user's items (table on desktop, cards on mobile) with Opened / Expires-in badges. Empty pantry shows `EmptyState` with the blue "Load sample pantry" Server Action, which writes `SAMPLE_PANTRY` (`src/lib/sample-pantry.ts`) with expiry dates counted from today.
 **Acceptance criteria:**
 - [x] Single indexed query scoped by session `user_id`
-- [x] Opened (SPEC §3) and ≤3-day-expiry items carry text badges
+- [x] Opened (SPEC §3) items carry an "Opened" badge; the Expires column says how far away the date is ("Oct 16 (in 2 days)") instead of a colored expiry badge
 - [x] Loading the sample pantry replaces the current pantry (so it doubles as the demo reset) and never duplicates rows
 - [x] A sample item missing from `ingredients`, or with a different unit, fails with a clear error instead of being skipped
 - [x] On a non-empty pantry, "Load sample pantry" is a secondary button behind a confirmation

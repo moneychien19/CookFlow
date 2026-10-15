@@ -27,7 +27,7 @@ describe("PantryList", () => {
   const items = [
     row({ id: 1, name: "chicken breast", unit: "g", quantity: 450, expiresOn: "2026-10-15" }),
     row({ id: 2, name: "bacon", unit: "g", quantity: 150, opened: true }),
-    row({ id: 3, name: "onion", quantity: 1.5 }),
+    row({ id: 3, name: "onion", quantity: 0.5 }),
   ];
 
   it("shows each item once in the desktop table and once as a mobile card", () => {
@@ -42,10 +42,14 @@ describe("PantryList", () => {
     expect(firstRow?.textContent).toContain("450 g");
   });
 
-  it("labels opened and expiring items in text, not just color", () => {
-    const text = render(items).querySelector("table")?.textContent ?? "";
-    expect(text).toContain("Expires tomorrow");
-    expect(text).toContain("Opened");
+  it("says how far away each expiry date is", () => {
+    const firstRow = render(items).querySelector("tbody tr");
+    expect(firstRow?.textContent).toContain("Oct 15 (tomorrow)");
+  });
+
+  it("marks opened items with an Opened label, including half an onion", () => {
+    const rows = [...render(items).querySelectorAll("tbody tr")].map((tr) => tr.textContent ?? "");
+    expect(rows.map((text) => text.includes("Opened"))).toEqual([false, true, true]);
   });
 
   it("gives the table column headers", () => {

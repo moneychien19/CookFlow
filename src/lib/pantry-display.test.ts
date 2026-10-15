@@ -1,15 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { expiryText, formatQuantity, pantryBadges } from "./pantry-display";
+import { expiryText, formatQuantity } from "./pantry-display";
 
 const TODAY = "2026-10-14";
-const item = (overrides: Partial<Parameters<typeof pantryBadges>[0]> = {}) => ({
-  quantity: 1,
-  unit: "whole" as const,
-  opened: false,
-  expiresOn: null,
-  ...overrides,
-});
-
 describe("formatQuantity", () => {
   it("shows weights and volumes with their unit", () => {
     expect(formatQuantity(450, "g")).toBe("450 g");
@@ -36,42 +28,14 @@ describe("formatQuantity", () => {
 });
 
 describe("expiryText", () => {
-  it("says today, tomorrow, or in how many days", () => {
-    expect(expiryText("2026-10-14", TODAY)).toBe("Expires today");
-    expect(expiryText("2026-10-15", TODAY)).toBe("Expires tomorrow");
-    expect(expiryText("2026-10-17", TODAY)).toBe("Expires in 3 days");
+  it("gives the date and how far away it is", () => {
+    expect(expiryText("2026-10-14", TODAY)).toBe("Oct 14 (today)");
+    expect(expiryText("2026-10-15", TODAY)).toBe("Oct 15 (tomorrow)");
+    expect(expiryText("2026-10-17", TODAY)).toBe("Oct 17 (in 3 days)");
+    expect(expiryText("2026-11-02", TODAY)).toBe("Nov 2 (in 19 days)");
   });
 
   it("says expired for a past date", () => {
-    expect(expiryText("2026-10-12", TODAY)).toBe("Expired");
-  });
-});
-
-describe("pantryBadges", () => {
-  it("shows no badges for a sealed item with no expiry date", () => {
-    expect(pantryBadges(item(), TODAY)).toEqual([]);
-  });
-
-  it("marks half an onion and a flagged pack of bacon as opened", () => {
-    expect(pantryBadges(item({ quantity: 0.5 }), TODAY)).toEqual([{ variant: "opened", text: "Opened" }]);
-    expect(pantryBadges(item({ quantity: 150, unit: "g", opened: true }), TODAY)).toEqual([
-      { variant: "opened", text: "Opened" },
-    ]);
-  });
-
-  it("flags food expiring within 3 days, and expired food", () => {
-    expect(pantryBadges(item({ expiresOn: "2026-10-17" }), TODAY)).toEqual([
-      { variant: "expiring", text: "Expires in 3 days" },
-    ]);
-    expect(pantryBadges(item({ expiresOn: "2026-10-13" }), TODAY)).toEqual([{ variant: "expiring", text: "Expired" }]);
-  });
-
-  it("doesn't flag food expiring in 4 days", () => {
-    expect(pantryBadges(item({ expiresOn: "2026-10-18" }), TODAY)).toEqual([]);
-  });
-
-  it("shows opened before expiring when both apply", () => {
-    const badges = pantryBadges(item({ quantity: 0.5, expiresOn: "2026-10-15" }), TODAY);
-    expect(badges.map((b) => b.text)).toEqual(["Opened", "Expires tomorrow"]);
+    expect(expiryText("2026-10-12", TODAY)).toBe("Oct 12 (expired)");
   });
 });

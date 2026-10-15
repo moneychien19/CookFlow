@@ -46,8 +46,7 @@ describe("Button", () => {
 
 describe("Badge", () => {
   it.each([
-    ["opened", "Opened", "bg-gold-pale", "text-espresso"],
-    ["expiring", "Expires in 2 days", "bg-clay", "text-on-dark"],
+    ["opened", "Opened", "bg-gold-pale/50", "text-espresso"],
     ["have", "Have", "bg-sage-pale", "text-forest"],
     ["missing", "Missing", "border-hairline", "text-stone"],
     ["neutral", "Skipped", "border-silver", "text-stone"],

@@ -1,9 +1,5 @@
-import type { BadgeVariant } from "@/components/ui/Badge";
 import { daysBetween } from "@/lib/dates";
-import { isOpened, type IsoDate, type Unit } from "@/lib/planner";
-
-/** Food expiring within this many days (or already expired) gets the expiring badge. */
-export const EXPIRING_SOON_DAYS = 3;
+import type { IsoDate, Unit } from "@/lib/planner";
 
 const PLURAL_UNITS: Partial<Record<Unit, [string, string]>> = {
   clove: ["clove", "cloves"],
@@ -20,22 +16,12 @@ export function formatQuantity(quantity: number, unit: Unit): string {
   return `${n} ${n === 1 || n < 1 ? words[0] : words[1]}`;
 }
 
+const DATE_FORMAT = new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "UTC" });
+
+/** "Oct 16 (in 2 days)", "Oct 15 (tomorrow)", "Oct 12 (expired)". */
 export function expiryText(expiresOn: IsoDate, today: IsoDate): string {
   const days = daysBetween(today, expiresOn);
-  if (days < 0) return "Expired";
-  if (days === 0) return "Expires today";
-  if (days === 1) return "Expires tomorrow";
-  return `Expires in ${days} days`;
-}
-
-type BadgeItem = { quantity: number; unit: Unit; opened: boolean; expiresOn: IsoDate | null };
-
-/** Status badges for a pantry item, always with text (CLAUDE.md: never color alone). */
-export function pantryBadges(item: BadgeItem, today: IsoDate): { variant: BadgeVariant; text: string }[] {
-  const badges: { variant: BadgeVariant; text: string }[] = [];
-  if (isOpened(item)) badges.push({ variant: "opened", text: "Opened" });
-  if (item.expiresOn !== null && daysBetween(today, item.expiresOn) <= EXPIRING_SOON_DAYS) {
-    badges.push({ variant: "expiring", text: expiryText(item.expiresOn, today) });
-  }
-  return badges;
+  const relative =
+    days < 0 ? "expired" : days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
+  return `${DATE_FORMAT.format(new Date(`${expiresOn}T00:00:00Z`))} (${relative})`;
 }

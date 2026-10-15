@@ -1,27 +1,10 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import type { PantryRow } from "@/lib/db/pantry";
-import { formatQuantity, pantryBadges } from "@/lib/pantry-display";
-import type { IsoDate } from "@/lib/planner";
+import { expiryText, formatQuantity } from "@/lib/pantry-display";
+import { isOpened, type IsoDate } from "@/lib/planner";
 
-const DATE_FORMAT = new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "UTC" });
-const formatDate = (date: IsoDate) => DATE_FORMAT.format(new Date(`${date}T00:00:00Z`));
-
-function Badges({ item, today }: { item: PantryRow; today: IsoDate }) {
-  const badges = pantryBadges(item, today);
-  if (badges.length === 0) return null;
-  return (
-    <span className="flex flex-wrap gap-xxs">
-      {badges.map((badge) => (
-        <Badge key={badge.text} variant={badge.variant}>
-          {badge.text}
-        </Badge>
-      ))}
-    </span>
-  );
-}
-
-const headerClass = "px-md py-sm text-left text-eyebrow uppercase text-stone";
+const headerClass = "px-md py-md text-left text-eyebrow uppercase text-stone";
 const cellClass = "px-md py-sm";
 
 /** The pantry as a table on tablet and up, and as cards on phones. */
@@ -43,10 +26,8 @@ export function PantryList({ items, today }: { items: PantryRow[]; today: IsoDat
               <tr key={item.id} className="border-b border-hairline last:border-b-0">
                 <th scope="row" className={`${cellClass} text-left font-normal`}>{item.name}</th>
                 <td className={cellClass}>{formatQuantity(item.quantity, item.unit)}</td>
-                <td className={cellClass}>{item.expiresOn ? formatDate(item.expiresOn) : "—"}</td>
-                <td className={cellClass}>
-                  <Badges item={item} today={today} />
-                </td>
+                <td className={cellClass}>{item.expiresOn ? expiryText(item.expiresOn, today) : "—"}</td>
+                <td className={cellClass}>{isOpened(item) && <Badge variant="opened">Opened</Badge>}</td>
               </tr>
             ))}
           </tbody>
@@ -55,12 +36,17 @@ export function PantryList({ items, today }: { items: PantryRow[]; today: IsoDat
 
       <ul className="flex flex-col gap-sm tablet:hidden">
         {items.map((item) => (
-          <Card key={item.id} as="li" className="flex flex-col gap-xs">
-            <span className="flex items-baseline justify-between gap-md text-body-sm">
+          <Card key={item.id} as="li" className="flex flex-col gap-xs text-body-sm">
+            <span className="flex items-baseline justify-between gap-md">
               <span>{item.name}</span>
               <span className="text-stone">{formatQuantity(item.quantity, item.unit)}</span>
             </span>
-            <Badges item={item} today={today} />
+            {(item.expiresOn || isOpened(item)) && (
+              <span className="flex flex-wrap items-center gap-xs text-stone">
+                {item.expiresOn && <span>Expires {expiryText(item.expiresOn, today)}</span>}
+                {isOpened(item) && <Badge variant="opened">Opened</Badge>}
+              </span>
+            )}
           </Card>
         ))}
       </ul>
