@@ -191,7 +191,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 **Dependencies:** T4, T8a (the shared "opened" helper), T11
 **Files:** `src/app/pantry/{page,loading,error}.tsx`, `src/components/PantryList.tsx`, `src/lib/db/pantry.ts`, `src/app/pantry/actions.ts`
 **Scope:** M
-**Known issue:** "today" is the server's UTC date, so in the evening in the Americas every expiry label is a day early (found 2026-10-14 at 21:00 EDT). Fixed in T21.
+**Known issue (fixed 2026-10-14):** "today" was the server's UTC date, so in the evening in the Americas every expiry label was a day early. Now it comes from the browser's time zone (SPEC §3).
 
 #### Task 13: Pantry add / edit / delete ✅
 **Description:** Add form with ingredient picker (canonical list, unit shown), quantity, optional expiry, an "opened" checkbox; inline edit and delete with confirmation. All Server Actions follow the four CLAUDE.md rules; quantities rounded to 2 dp.
@@ -304,7 +304,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 - [ ] Every route has loading/error handling
 - [ ] Keyboard-only run through the full flow succeeds
 - [ ] No horizontal scroll at 375px on any page
-- [ ] "Today" (expiry badges, urgency, sample expiry dates) is the cook's local date, not the server's UTC date
+- [x] "Today" (expiry badges, urgency, sample expiry dates) is the cook's local date, not the server's UTC date (done early, with T13)
 **Verification:** manual checklist; Lighthouse accessibility ≥ 95 on each page.
 **Dependencies:** T20, T19
 **Files:** route segment files across `src/app/**`

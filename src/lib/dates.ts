@@ -15,3 +15,14 @@ export function addDays(date: IsoDate, days: number): IsoDate {
 export function daysBetween(from: IsoDate, to: IsoDate): number {
   return Math.round((toMs(to) - toMs(from)) / MS_PER_DAY);
 }
+
+/** The calendar date in `timeZone` (an IANA name like "America/New_York"); UTC when it's missing or unknown. */
+export function todayIn(timeZone: string | undefined, now: Date): IsoDate {
+  if (!timeZone) return todayIso(now);
+  try {
+    // en-CA formats dates as YYYY-MM-DD.
+    return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+  } catch {
+    return todayIso(now); // RangeError: not a time zone this runtime knows
+  }
+}

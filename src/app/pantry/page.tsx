@@ -6,9 +6,9 @@ import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDb } from "@/lib/db/client";
 import { listIngredientOptions, listPantry } from "@/lib/db/pantry";
-import { todayIso } from "@/lib/dates";
 import { DEMO_USER_ID } from "@/lib/demo";
 import { requireUserId } from "@/lib/session";
+import { requestToday } from "@/lib/today";
 import { loadSamplePantry } from "./actions";
 
 /** A search param as a single string; anything else (absent, repeated) is undefined. */
@@ -19,7 +19,7 @@ export default async function PantryPage({ searchParams }: PageProps<"/pantry">)
   const params = await searchParams;
   const db = getDb();
   const [items, options] = await Promise.all([listPantry(db, userId), listIngredientOptions(db, userId)]);
-  const today = todayIso(new Date());
+  const today = await requestToday();
   // Only an id from this user's own list opens a row for editing.
   const editParam = Number(single(params.edit));
   const editId = items.some((item) => item.id === editParam) ? editParam : null;

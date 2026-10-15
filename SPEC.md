@@ -120,6 +120,8 @@ A weight alone can't tell a leftover from a smaller pack (300 g could be either)
 
 **Own ingredients:** when the catalog doesn't have something, the cook types a name and picks a unit. It's saved as an ingredient owned by them (`owner_id`), offered only to them, and deleted with their account. A typed name that's already in the catalog is sent back to the list, and retyping one of their own reuses it (in its first unit). No recipe uses an own ingredient, so the planner only counts it among leftovers.
 
+**Today** is the cook's local date: the browser stores its time zone name in a `cookflow-tz` cookie, and the server counts expiry labels, urgency, and sample expiry dates from that day (UTC until the cookie is set). The zone name isn't stored anywhere else.
+
 **Adding an item that's already in the pantry** adds to its amount, keeps the earlier expiry date, and keeps it opened if either one was. The pantry has one row per ingredient, and the add form offers non-staple ingredients only (the planner ignores staples).
 
 Recipe pages display `source_name` + `source_measure` (exact source text). The canonical `quantity` is used only by the planner and by "mark cooked".

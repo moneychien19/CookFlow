@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { NavBar } from "@/components/NavBar";
+import { TimeZoneCookie } from "@/components/TimeZoneCookie";
 import "@/styles/globals.css";
 
 // Open substitutes for DESIGN.md's faces: Fraunces for Editorial New (headings,
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
       <body>
         <NavBar />
+        <TimeZoneCookie />
         <main className="mx-auto w-full max-w-page px-md pt-xl pb-3xl tablet:px-lg">
           {children}
         </main>
