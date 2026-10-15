@@ -18,7 +18,7 @@ export default async function PantryPage({ searchParams }: PageProps<"/pantry">)
   const userId = await requireUserId();
   const params = await searchParams;
   const db = getDb();
-  const [items, options] = await Promise.all([listPantry(db, userId), listIngredientOptions(db)]);
+  const [items, options] = await Promise.all([listPantry(db, userId), listIngredientOptions(db, userId)]);
   const today = todayIso(new Date());
   // Only an id from this user's own list opens a row for editing.
   const editParam = Number(single(params.edit));

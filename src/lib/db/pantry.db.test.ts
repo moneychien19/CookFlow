@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { SAMPLE_PANTRY } from "@/lib/sample-pantry";
 import { createDb, type Db } from "./client";
@@ -16,6 +16,7 @@ import { ingredients, users } from "./schema";
 const url = process.env.TEST_DATABASE_URL;
 const ALICE = "test-pantry-alice";
 const BOB = "test-pantry-bob";
+const CAROL = "test-pantry-carol";
 const TODAY = "2026-10-14";
 
 describe.skipIf(!url)("pantry queries (real Postgres)", () => {
@@ -23,11 +24,11 @@ describe.skipIf(!url)("pantry queries (real Postgres)", () => {
   let db: Db;
   beforeAll(async () => {
     db = createDb(url ?? "");
-    await db.insert(users).values([{ id: ALICE }, { id: BOB }]).onConflictDoNothing();
+    await db.insert(users).values([{ id: ALICE }, { id: BOB }, { id: CAROL }]).onConflictDoNothing();
   });
   afterAll(async () => {
-    // Deleting the users cascades to their pantry rows.
-    await db.delete(users).where(inArray(users.id, [ALICE, BOB]));
+    // Deleting the users cascades to their pantry rows and their own ingredients.
+    await db.delete(users).where(inArray(users.id, [ALICE, BOB, CAROL]));
     await db.$client.end();
   });
 
@@ -92,7 +93,7 @@ describe.skipIf(!url)("pantry queries (real Postgres)", () => {
   }
 
   it("offers every non-staple ingredient in the picker, by name", async () => {
-    const options = await listIngredientOptions(db);
+    const options = await listIngredientOptions(db, ALICE);
     const names = options.map((o) => o.name);
     expect(names).toContain("chicken breast");
     expect(names).not.toContain("salt");
@@ -102,7 +103,7 @@ describe.skipIf(!url)("pantry queries (real Postgres)", () => {
   it("adds a new item, ignoring the opened box on counted produce", async () => {
     await replacePantryWithSample(db, ALICE, [], TODAY);
     const onion = await ingredientId("onion");
-    const result = await addPantryItem(db, ALICE, { ingredientId: onion, quantity: 2, expiresOn: null, opened: true });
+    const result = await addPantryItem(db, ALICE, { ingredient: { kind: "existing", id: onion }, quantity: 2, expiresOn: null, opened: true });
     expect(result).toEqual({ ok: true });
     expect(await listPantry(db, ALICE)).toMatchObject([{ name: "onion", quantity: 2, opened: false }]);
   });
@@ -110,8 +111,8 @@ describe.skipIf(!url)("pantry queries (real Postgres)", () => {
   it("adds to an item already in the pantry, keeping the earlier expiry and the opened flag", async () => {
     await replacePantryWithSample(db, ALICE, [], TODAY);
     const bacon = await ingredientId("bacon");
-    await addPantryItem(db, ALICE, { ingredientId: bacon, quantity: 150, expiresOn: "2026-10-17", opened: true });
-    await addPantryItem(db, ALICE, { ingredientId: bacon, quantity: 200, expiresOn: "2026-10-25", opened: false });
+    await addPantryItem(db, ALICE, { ingredient: { kind: "existing", id: bacon }, quantity: 150, expiresOn: "2026-10-17", opened: true });
+    await addPantryItem(db, ALICE, { ingredient: { kind: "existing", id: bacon }, quantity: 200, expiresOn: "2026-10-25", opened: false });
     expect(await listPantry(db, ALICE)).toMatchObject([
       { name: "bacon", quantity: 350, expiresOn: "2026-10-17", opened: true },
     ]);
@@ -120,7 +121,7 @@ describe.skipIf(!url)("pantry queries (real Postgres)", () => {
   it("refuses a staple or an unknown ingredient", async () => {
     const salt = await ingredientId("salt");
     for (const id of [salt, 99999999]) {
-      const result = await addPantryItem(db, ALICE, { ingredientId: id, quantity: 1, expiresOn: null, opened: false });
+      const result = await addPantryItem(db, ALICE, { ingredient: { kind: "existing", id: id }, quantity: 1, expiresOn: null, opened: false });
       expect(result).toEqual({ ok: false, error: "Pick an ingredient from the list" });
     }
   });
@@ -155,5 +156,65 @@ describe.skipIf(!url)("pantry queries (real Postgres)", () => {
     const [first] = await listPantry(db, ALICE);
     expect(await deletePantryItem(db, ALICE, first?.id ?? 0)).toEqual({ ok: true });
     expect(await listPantry(db, ALICE)).toHaveLength(SAMPLE_PANTRY.length - 1);
+  });
+
+  const smokedTofu = { kind: "new", name: "smoked tofu", unit: "g" } as const;
+
+  it("adds an ingredient the catalog doesn't have, and offers it only to that user", async () => {
+    await replacePantryWithSample(db, ALICE, [], TODAY);
+    const result = await addPantryItem(db, ALICE, { ingredient: smokedTofu, quantity: 200, expiresOn: null, opened: true });
+    expect(result).toEqual({ ok: true });
+    expect(await listPantry(db, ALICE)).toMatchObject([{ name: "smoked tofu", unit: "g", quantity: 200, opened: true }]);
+
+    expect((await listIngredientOptions(db, ALICE)).find((o) => o.name === "smoked tofu")).toMatchObject({ custom: true });
+    expect((await listIngredientOptions(db, BOB)).some((o) => o.name === "smoked tofu")).toBe(false);
+  });
+
+  it("reuses the user's own ingredient when they type the same name again", async () => {
+    await replacePantryWithSample(db, ALICE, [], TODAY);
+    await addPantryItem(db, ALICE, { ingredient: smokedTofu, quantity: 200, expiresOn: null, opened: false });
+    await addPantryItem(db, ALICE, { ingredient: smokedTofu, quantity: 100, expiresOn: null, opened: false });
+    expect(await listPantry(db, ALICE)).toMatchObject([{ name: "smoked tofu", quantity: 300 }]);
+    const own = await db.select().from(ingredients).where(and(eq(ingredients.ownerId, ALICE), eq(ingredients.name, "smoked tofu")));
+    expect(own).toHaveLength(1);
+  });
+
+  it("refuses the same name in a different unit", async () => {
+    await addPantryItem(db, ALICE, { ingredient: smokedTofu, quantity: 200, expiresOn: null, opened: false });
+    const result = await addPantryItem(db, ALICE, {
+      ingredient: { ...smokedTofu, unit: "pack" },
+      quantity: 1,
+      expiresOn: null,
+      opened: false,
+    });
+    expect(result).toEqual({ ok: false, error: 'You already have "smoked tofu", measured in g' });
+  });
+
+  it("points a typed name that's already in the catalog back to the list", async () => {
+    const result = await addPantryItem(db, ALICE, {
+      ingredient: { kind: "new", name: "onion", unit: "g" },
+      quantity: 100,
+      expiresOn: null,
+      opened: false,
+    });
+    expect(result).toEqual({ ok: false, error: '"onion" is already in the list: pick it there' });
+  });
+
+  it("refuses another user's own ingredient, even with its id", async () => {
+    await addPantryItem(db, ALICE, { ingredient: smokedTofu, quantity: 200, expiresOn: null, opened: false });
+    const [own] = await db.select().from(ingredients).where(and(eq(ingredients.ownerId, ALICE), eq(ingredients.name, "smoked tofu")));
+    const result = await addPantryItem(db, BOB, {
+      ingredient: { kind: "existing", id: own?.id ?? 0 },
+      quantity: 1,
+      expiresOn: null,
+      opened: false,
+    });
+    expect(result).toEqual({ ok: false, error: "Pick an ingredient from the list" });
+  });
+
+  it("removes a user's own ingredients along with the user", async () => {
+    await addPantryItem(db, CAROL, { ingredient: smokedTofu, quantity: 50, expiresOn: null, opened: false });
+    await db.delete(users).where(eq(users.id, CAROL));
+    expect(await db.select().from(ingredients).where(eq(ingredients.ownerId, CAROL))).toEqual([]);
   });
 });

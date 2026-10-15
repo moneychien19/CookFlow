@@ -51,9 +51,10 @@ users, accounts, sessions          -- managed by Auth.js adapter
 
 ingredients
   id            serial pk
-  name          text unique          -- canonical, lowercase: "onion", "egg", "chicken breast"
+  name          text                 -- lowercase: "onion", "egg", "chicken breast"; unique in the catalog, and within each user's own list
   unit          text                 -- canonical unit: "whole" | "pack" | "bunch" | "clove" | "count" | "g" | "ml"
   is_staple     boolean default false  -- salt, pepper, oil, water: ignored by planner
+  owner_id      fk users, nullable   -- null: the shared catalog (CookFlow-Ingest); set: an ingredient that user added
 
 pantry_items
   id            serial pk
@@ -117,6 +118,8 @@ A weight alone can't tell a leftover from a smaller pack (300 g could be either)
 
 **Hard-to-use leftover:** a non-staple opened item.
 
+**Own ingredients:** when the catalog doesn't have something, the cook types a name and picks a unit. It's saved as an ingredient owned by them (`owner_id`), offered only to them, and deleted with their account. A typed name that's already in the catalog is sent back to the list, and retyping one of their own reuses it (in its first unit). No recipe uses an own ingredient, so the planner only counts it among leftovers.
+
 **Adding an item that's already in the pantry** adds to its amount, keeps the earlier expiry date, and keeps it opened if either one was. The pantry has one row per ingredient, and the add form offers non-staple ingredients only (the planner ignores staples).
 
 Recipe pages display `source_name` + `source_measure` (exact source text). The canonical `quantity` is used only by the planner and by "mark cooked".
@@ -133,6 +136,7 @@ Recipe data is built by a separate repo, CookFlow-Ingest, which writes `ingredie
    - Use Claude offline to normalize the messy rest, then **hand-review** the output.
    - Drop recipes that can't be mapped cleanly. 50 good recipes > 100 noisy ones.
 3. Mark staples (`salt`, `pepper`, `olive oil`, `water`, `sugar`, ...) with `is_staple = true`.
+   CookFlow-Ingest writes only catalog rows (`owner_id is null`) and upserts on `(name) where owner_id is null`, so it never touches ingredients users added.
 4. Keep the original `strIngredientN` / `strMeasureN` text as `source_name` / `source_measure`, and keep every word of `strInstructions`. Never truncate or reword it, because it carries the food-safety steps (§7a #9, #10). It is stored as numbered steps (`1. …\n2. …`, one per line): splitting it into steps and dropping the source's own step labels (`step 1`, `1.`) is the only change allowed, and CookFlow-Ingest checks it word by word.
 5. Load the reviewed result into the database. Running it again gives the same rows, so the app stays deterministic and reproducible.
 

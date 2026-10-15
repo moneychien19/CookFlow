@@ -38,7 +38,8 @@ export async function addItem(_state: PantryFormState, formData: FormData): Prom
 
   const result = await addPantryItem(getDb(), userId, parsed.data);
   if (!result.ok) {
-    return { fieldErrors: { ingredientId: result.error }, values: formValues(formData), submittedAt: Date.now() };
+    const field = parsed.data.ingredient.kind === "new" ? "newName" : "ingredientId";
+    return { fieldErrors: { [field]: result.error }, values: formValues(formData), submittedAt: Date.now() };
   }
   backToPantry();
 }

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UNITS } from "@/lib/planner/types";
 
 /** numeric(8,2): the largest amount the quantity column holds. */
 const MAX_QUANTITY = 999999.99;
@@ -33,11 +34,29 @@ const opened = z
   .optional()
   .transform((value) => value === "on");
 
-const addItem = z.object({ ingredientId: id("Pick an ingredient"), quantity, expiresOn, opened });
+const itemFields = z.object({ quantity, expiresOn, opened });
+
+const existingIngredient = z
+  .object({ ingredientId: id("Pick an ingredient") })
+  .transform(({ ingredientId }) => ({ kind: "existing" as const, id: ingredientId }));
+
+/** A name the cook typed: lowercase with single spaces, like the catalog's names. */
+const newIngredient = z
+  .object({
+    newName: z
+      .string()
+      .transform((name) => name.trim().replace(/\s+/g, " ").toLowerCase())
+      .pipe(z.string().min(1, "Type an ingredient").max(60, "Use 60 characters or fewer")),
+    newUnit: z.enum(UNITS, { error: "Pick a unit" }),
+  })
+  .transform(({ newName, newUnit }) => ({ kind: "new" as const, name: newName, unit: newUnit }));
+
 const editItem = z.object({ id: id("Unknown item"), quantity, expiresOn, opened });
 const deleteItem = z.object({ id: id("Unknown item") });
 
-export type AddItemInput = z.infer<typeof addItem>;
+export type AddItemInput = z.infer<typeof itemFields> & {
+  ingredient: z.infer<typeof existingIngredient> | z.infer<typeof newIngredient>;
+};
 export type EditItemInput = z.infer<typeof editItem>;
 
 /** The form's text fields as submitted, for refilling the form after an error. */
@@ -53,20 +72,34 @@ export function formValues(formData: FormData): FormValues {
   return values;
 }
 
+function errorsOf(error: z.ZodError, into: Partial<Record<string, string>>) {
+  for (const issue of error.issues) {
+    const field = String(issue.path[0] ?? "form");
+    into[field] ??= issue.message;
+  }
+}
+
 function parse<T>(schema: z.ZodType<T>, formData: FormData): ParseResult<T> {
   const values = formValues(formData);
-
   const result = schema.safeParse(values);
   if (result.success) return { ok: true, data: result.data };
-
   const fieldErrors: Partial<Record<string, string>> = {};
-  for (const issue of result.error.issues) {
-    const field = String(issue.path[0] ?? "form");
-    fieldErrors[field] ??= issue.message;
-  }
+  errorsOf(result.error, fieldErrors);
   return { ok: false, fieldErrors, values };
 }
 
-export const parseAddItem = (formData: FormData) => parse(addItem, formData);
+/** An ingredient from the list (`ingredientId`), or a new one (`newName` + `newUnit`) when no id is sent. */
+export function parseAddItem(formData: FormData): ParseResult<AddItemInput> {
+  const values = formValues(formData);
+  const isNew = !values.ingredientId && Boolean(values.newName?.trim());
+  const fields = itemFields.safeParse(values);
+  const ingredient = (isNew ? newIngredient : existingIngredient).safeParse(values);
+  if (fields.success && ingredient.success) return { ok: true, data: { ...fields.data, ingredient: ingredient.data } };
+
+  const fieldErrors: Partial<Record<string, string>> = {};
+  if (!ingredient.success) errorsOf(ingredient.error, fieldErrors);
+  if (!fields.success) errorsOf(fields.error, fieldErrors);
+  return { ok: false, fieldErrors, values };
+}
 export const parseEditItem = (formData: FormData) => parse(editItem, formData);
 export const parseDeleteItem = (formData: FormData) => parse(deleteItem, formData);

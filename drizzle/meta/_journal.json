@@ -15,6 +15,13 @@
       "when": 1791928523373,
       "tag": "0001_gram_units",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792028182245,
+      "tag": "0002_user_ingredients",
+      "breakpoints": true
     }
   ]
 }

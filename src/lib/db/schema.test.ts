@@ -44,6 +44,22 @@ describe("database schema", () => {
     expect(config(mealPlanItems).checks).toContain("meal_plan_items_status_check");
   });
 
+  it("lets a user add their own ingredients, unique by name within the catalog and within each user's list", () => {
+    const ownerId = config(ingredients).columns.owner_id;
+    expect(ownerId?.notNull).toBe(false);
+    const uniqueIndexes = getTableConfig(ingredients)
+      .indexes.filter((i) => i.config.unique)
+      .map((i) => ({
+        columns: i.config.columns.map((col) => ("name" in col ? col.name : "")),
+        partial: i.config.where !== undefined,
+      }));
+    expect(uniqueIndexes).toEqual([
+      { columns: ["name"], partial: true },
+      { columns: ["owner_id", "name"], partial: true },
+    ]);
+    expect(getTableConfig(ingredients).uniqueConstraints).toEqual([]);
+  });
+
   it("restricts ingredient units to the canonical units, including grams and millilitres", () => {
     expect(config(ingredients).checks).toContain("ingredients_unit_check");
     expect(UNITS).toEqual(["whole", "pack", "bunch", "clove", "count", "g", "ml"]);

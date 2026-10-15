@@ -12,6 +12,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 import { UNITS, type Unit } from "@/lib/planner/types";
@@ -82,13 +83,21 @@ export const ingredients = pgTable(
   "ingredients",
   {
     id: serial("id").primaryKey(),
-    /** Canonical, lowercase: "onion", "egg", "chicken breast". */
-    name: text("name").notNull().unique(),
+    /** Lowercase: "onion", "egg", "chicken breast". */
+    name: text("name").notNull(),
     unit: text("unit").$type<Unit>().notNull(),
     /** Salt, pepper, oil, water: ignored by the planner. */
     isStaple: boolean("is_staple").notNull().default(false),
+    /** Null for the shared catalog (written by CookFlow-Ingest); a user id for an ingredient that user added. */
+    ownerId: text("owner_id").references(() => users.id, { onDelete: "cascade" }),
   },
-  (t) => [check("ingredients_unit_check", sql`${t.unit} in (${sqlList(UNITS)})`)],
+  (t) => [
+    check("ingredients_unit_check", sql`${t.unit} in (${sqlList(UNITS)})`),
+    // Names are unique within the catalog, and within each user's own list.
+    uniqueIndex("ingredients_catalog_name_unique").on(t.name).where(sql`${t.ownerId} is null`),
+    // Also the index for "this user's ingredients" (owner_id is the leading column).
+    uniqueIndex("ingredients_owner_name_unique").on(t.ownerId, t.name).where(sql`${t.ownerId} is not null`),
+  ],
 );
 
 export const pantryItems = pgTable(

@@ -10,12 +10,18 @@ const form = (fields: Record<string, string>) => {
 describe("parseAddItem", () => {
   it("reads an ingredient, amount, expiry date, and opened checkbox", () => {
     const result = parseAddItem(form({ ingredientId: "12", quantity: "300", expiresOn: "2026-10-20", opened: "on" }));
-    expect(result).toEqual({ ok: true, data: { ingredientId: 12, quantity: 300, expiresOn: "2026-10-20", opened: true } });
+    expect(result).toEqual({
+      ok: true,
+      data: { ingredient: { kind: "existing", id: 12 }, quantity: 300, expiresOn: "2026-10-20", opened: true },
+    });
   });
 
   it("treats an empty expiry date as none and a missing checkbox as not opened", () => {
     const result = parseAddItem(form({ ingredientId: "12", quantity: "1.5", expiresOn: "" }));
-    expect(result).toEqual({ ok: true, data: { ingredientId: 12, quantity: 1.5, expiresOn: null, opened: false } });
+    expect(result).toEqual({
+      ok: true,
+      data: { ingredient: { kind: "existing", id: 12 }, quantity: 1.5, expiresOn: null, opened: false },
+    });
   });
 
   it("rounds the amount to 2 decimals", () => {
@@ -33,6 +39,32 @@ describe("parseAddItem", () => {
   ])("rejects the amount %j", (quantity, message) => {
     const result = parseAddItem(form({ ingredientId: "12", quantity, expiresOn: "" }));
     expect(result).toMatchObject({ ok: false, fieldErrors: { quantity: message } });
+  });
+
+  it("reads a new ingredient typed by the cook, tidied to lowercase single spaces", () => {
+    const result = parseAddItem(form({ ingredientId: "", newName: "  Smoked   Tofu ", newUnit: "g", quantity: "200", expiresOn: "" }));
+    expect(result).toEqual({
+      ok: true,
+      data: { ingredient: { kind: "new", name: "smoked tofu", unit: "g" }, quantity: 200, expiresOn: null, opened: false },
+    });
+  });
+
+  it("asks for a unit for a new ingredient", () => {
+    const result = parseAddItem(form({ ingredientId: "", newName: "smoked tofu", newUnit: "", quantity: "1", expiresOn: "" }));
+    expect(result).toMatchObject({ ok: false, fieldErrors: { newUnit: "Pick a unit" } });
+  });
+
+  it("rejects a new ingredient name over 60 characters", () => {
+    const result = parseAddItem(form({ ingredientId: "", newName: "x".repeat(61), newUnit: "g", quantity: "1", expiresOn: "" }));
+    expect(result).toMatchObject({ ok: false, fieldErrors: { newName: "Use 60 characters or fewer" } });
+  });
+
+  it("reports the ingredient and the amount errors together", () => {
+    const result = parseAddItem(form({ ingredientId: "", newName: "tofu", newUnit: "", quantity: "0", expiresOn: "" }));
+    expect(result).toMatchObject({
+      ok: false,
+      fieldErrors: { newUnit: "Pick a unit", quantity: "Enter an amount greater than 0" },
+    });
   });
 
   it("asks for an ingredient when none is picked", () => {
