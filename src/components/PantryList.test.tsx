@@ -66,9 +66,9 @@ describe("PantryList", () => {
     expect(labels).toContain("Delete bacon");
   });
 
-  it("asks before deleting", () => {
+  it("asks in a dialog before deleting", () => {
     const row = render(items).querySelector("tbody tr");
-    expect(row?.querySelector("details form")?.textContent).toContain("Remove chicken breast?");
+    expect(row?.querySelector("dialog")?.textContent).toContain("Remove chicken breast from your pantry?");
   });
 
   it("turns the row being edited into a form filled with its values", () => {

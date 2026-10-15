@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { deleteItem } from "@/app/pantry/actions";
+import { DeleteItemButton } from "@/components/DeleteItemButton";
 import { EditPantryItemForm } from "@/components/PantryItemForm";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { PantryRow } from "@/lib/db/pantry";
 import { expiryText, formatQuantity } from "@/lib/pantry-display";
@@ -12,23 +11,14 @@ const headerClass = "px-md py-md text-left text-eyebrow uppercase text-stone";
 const cellClass = "px-md py-sm";
 const linkClass = "inline-flex min-h-touch items-center px-xs text-ui text-stone underline";
 
-/** "Edit" opens the row as a form (?edit=id); "Delete" asks before it removes anything. */
+/** "Edit" opens the row as a form (?edit=id); "Delete" asks in a dialog before it removes anything. */
 function ItemActions({ item }: { item: PantryRow }) {
   return (
-    <div className="flex flex-wrap items-start justify-end gap-xs">
+    <div className="flex flex-wrap items-center justify-end gap-xs">
       <Link href={`/pantry?edit=${item.id}`} className={linkClass} aria-label={`Edit ${item.name}`}>
         Edit
       </Link>
-      <details className="flex flex-col items-end">
-        <summary className={`${linkClass} cursor-pointer list-none`} aria-label={`Delete ${item.name}`}>
-          Delete
-        </summary>
-        <form action={deleteItem} className="flex flex-col items-end gap-xs pb-xs">
-          <input type="hidden" name="id" value={item.id} />
-          <p className="text-ui text-ink">Remove {item.name}?</p>
-          <Button type="submit">Yes, delete</Button>
-        </form>
-      </details>
+      <DeleteItemButton id={item.id} name={item.name} />
     </div>
   );
 }
@@ -61,7 +51,7 @@ export function PantryList({ items, today, editId }: PantryListProps) {
                   </td>
                 </tr>
               ) : (
-                <tr key={item.id} className="border-b border-hairline align-top last:border-b-0">
+                <tr key={item.id} className="border-b border-hairline last:border-b-0">
                   <th scope="row" className={`${cellClass} text-left font-normal`}>{item.name}</th>
                   <td className={cellClass}>{formatQuantity(item.quantity, item.unit)}</td>
                   <td className={cellClass}>{item.expiresOn ? expiryText(item.expiresOn, today) : "—"}</td>
