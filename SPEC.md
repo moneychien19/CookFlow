@@ -129,7 +129,7 @@ Recipe pages display `source_name` + `source_measure` (exact source text). The c
    - Use Claude offline to normalize the messy rest, then **hand-review** the output.
    - Drop recipes that can't be mapped cleanly. 50 good recipes > 100 noisy ones.
 3. Mark staples (`salt`, `pepper`, `olive oil`, `water`, `sugar`, ...) with `is_staple = true`.
-4. Keep the original `strIngredientN` / `strMeasureN` text as `source_name` / `source_measure`, and keep `strInstructions` whole. Never truncate or rewrite it, because it carries the food-safety steps (§7a #9, #10).
+4. Keep the original `strIngredientN` / `strMeasureN` text as `source_name` / `source_measure`, and keep every word of `strInstructions`. Never truncate or reword it, because it carries the food-safety steps (§7a #9, #10). It is stored as numbered steps (`1. …\n2. …`, one per line): splitting it into steps and dropping the source's own step labels (`step 1`, `1.`) is the only change allowed, and CookFlow-Ingest checks it word by word.
 5. Commit the result as `seed/recipes.json` and load it with a seed script. This makes the app deterministic and reproducible.
 
 Why not call the API live: rate limits, inconsistent formats, and latency. The planner needs every candidate recipe in memory anyway (§7a #3: plan in < 5s).
@@ -254,5 +254,5 @@ Add a **demo account or "load sample pantry" button** so reviewers can try it wi
 | 7 | Security | Low level | Auth.js sessions; every query is scoped by `user_id` |
 | 8 | Privacy | Low; core features must not require PII | Demo account / sample pantry works without signing in; OAuth stores only the provider account id, name, and email (no avatar, no provider tokens) |
 | 9 | Accuracy | Show recipe ingredient names and quantities exactly as the source gives them | `source_name` / `source_measure` columns (§3) |
-| 10 | Safety | Show source food-safety instructions without omission | Full `instructions` text stored and shown; never truncated (§4) |
+| 10 | Safety | Show source food-safety instructions without omission | Full `instructions` text stored and shown as numbered steps; never truncated or reworded (§4) |
 | 11 | Interoperability | Process structured recipe data from the external source | TheMealDB → normalized `seed/recipes.json` (§4) |
