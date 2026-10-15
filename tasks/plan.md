@@ -132,12 +132,12 @@ T1 scaffold ─┬─ T2 CI + deploy
 **Scope:** M
 **Later:** the `seed/` directory and `db:seed` were removed on 2026-10-13. Recipe data now comes from CookFlow-Ingest, and the sample pantry moved to `src/lib/sample-pantry.ts`.
 
-#### Task 8a: The opened flag in the planner
+#### Task 8a: The opened flag in the planner ✅
 **Description:** Follow-up to the `g`/`ml` units and `pantry_items.opened` column (migration `0001_gram_units`). Add `opened` to `PantryEntry`, and teach the planner SPEC §3's "opened item" rule (flag, or counted item with `0 < qty < 1`) through one shared helper, used for the α bonus, `newPartial`, and the hard-to-use count. Simulated cooking sets `opened` on `g`/`ml` items with some left. The recipe data is already in grams and millilitres, so only the planner changes.
 **Acceptance criteria:**
-- [ ] An opened 300 g chicken gets the α bonus; a sealed one doesn't
-- [ ] Using 200 g of a sealed 500 g item counts as one new opened item; using 1 of 3 onions doesn't
-- [ ] The hard-to-use count includes opened `g`/`ml` items
+- [x] An opened 300 g chicken gets the α bonus; a sealed one doesn't
+- [x] Using 200 g of a sealed 500 g item counts as one new opened item; using 1 of 3 onions doesn't
+- [x] The hard-to-use count includes opened `g`/`ml` items
 **Verification:** `npm test -- src/lib/planner`
 **Dependencies:** T5–T6
 **Files:** `src/lib/planner/*`
@@ -179,29 +179,31 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 **Files:** `src/lib/auth.ts`, `src/app/api/auth/[...nextauth]/route.ts`, `src/lib/session.ts`, `src/app/demo/actions.ts`
 **Scope:** M
 
-#### Task 12: Pantry list with sample-pantry empty state
+#### Task 12: Pantry list with sample-pantry empty state ✅
 **Description:** `/pantry` Server Component listing the user's items (table on desktop, cards on mobile) with Opened / Expires-in badges. Empty pantry shows `EmptyState` with the blue "Load sample pantry" Server Action, which writes `SAMPLE_PANTRY` (`src/lib/sample-pantry.ts`) with expiry dates counted from today.
 **Acceptance criteria:**
-- [ ] Single indexed query scoped by session `user_id`
-- [ ] Opened (SPEC §3) and ≤3-day-expiry items carry text badges
-- [ ] Loading the sample pantry replaces the current pantry (so it doubles as the demo reset) and never duplicates rows
-- [ ] A sample item missing from `ingredients`, or with a different unit, fails with a clear error instead of being skipped
-- [ ] On a non-empty pantry, "Load sample pantry" is a secondary button behind a confirmation
+- [x] Single indexed query scoped by session `user_id`
+- [x] Opened (SPEC §3) items carry an "Opened" badge; the Expires column says how far away the date is ("Oct 16 (in 2 days)") instead of a colored expiry badge
+- [x] Loading the sample pantry replaces the current pantry (so it doubles as the demo reset) and never duplicates rows
+- [x] A sample item missing from `ingredients`, or with a different unit, fails with a clear error instead of being skipped
+- [x] On a non-empty pantry, "Load sample pantry" is a secondary button behind a confirmation
 **Verification:** manual as the demo user; a query test against a Neon branch for user scoping.
 **Dependencies:** T4, T8a (the shared "opened" helper), T11
 **Files:** `src/app/pantry/{page,loading,error}.tsx`, `src/components/PantryList.tsx`, `src/lib/db/pantry.ts`, `src/app/pantry/actions.ts`
 **Scope:** M
+**Known issue (fixed 2026-10-14):** "today" was the server's UTC date, so in the evening in the Americas every expiry label was a day early. Now it comes from the browser's time zone (SPEC §3).
 
-#### Task 13: Pantry add / edit / delete
+#### Task 13: Pantry add / edit / delete ✅
 **Description:** Add form with ingredient picker (canonical list, unit shown), quantity, optional expiry, an "opened" checkbox; inline edit and delete with confirmation. All Server Actions follow the four CLAUDE.md rules; quantities rounded to 2 dp.
 **Acceptance criteria:**
-- [ ] Invalid quantity (≤ 0, non-number) shows a field error, nothing written
-- [ ] Adding an ingredient already in the pantry updates it instead of failing on the unique constraint
-- [ ] Cannot edit or delete another user's item (test with a forged id)
-- [ ] "Pantry updated" toast after each change
+- [x] Invalid quantity (≤ 0, non-number) shows a field error, nothing written
+- [x] Adding an ingredient already in the pantry updates it instead of failing on the unique constraint (amounts add up; SPEC §3)
+- [x] Cannot edit or delete another user's item (test with a forged id)
+- [x] "Pantry updated" toast after each change
 **Verification:** action tests against a Neon branch; manual keyboard-only pass.
 **Dependencies:** T12. **Needs you:** a Neon `test` branch made from dev (so it has the recipe catalog) for `TEST_DATABASE_URL`. These tests write rows, so they shouldn't run on dev.
 **Files:** `src/app/pantry/actions.ts`, `src/components/PantryItemForm.tsx`, `src/lib/db/pantry.ts`, `src/lib/validation/pantry.ts`
+**Later (2026-10-14):** the ingredient picker became a searchable combobox, and a name the catalog doesn't have can be added as the user's own ingredient with a unit (`ingredients.owner_id`, migration `0002`, applied on dev only). CookFlow-Ingest must upsert with `ON CONFLICT (name) WHERE owner_id IS NULL` before its next run.
 **Scope:** M
 
 ### Checkpoint B: Pantry end-to-end
@@ -224,6 +226,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 - [ ] Run `suggestMeals` and `planMeals` (N = 3 and 5, with and without vegetarian) on the sample pantry and the full recipe catalog, and review the picks with you before building `/suggest`
 - [ ] Check whether herbs dominate the leftovers count: a sprig of thyme is stored as about 0.05 bunch, so it opens a whole bunch. Decide whether that needs a planner or data change
 - Baseline from 2026-10-14, before T8a: 28 recipes qualify (2 vegetarian). N = 3 picks Bengali Chicken Curry, Algerian Flafla, and the chorizo omelette, and leftovers go 4 → 2. The vegetarian plan finds only 2 meals and leftovers go 4 → 5
+- After T8a, with the sample pantry's opened flags: the same 3 meals, and leftovers go 8 → 6 (4 cut items plus 4 opened packs before). A pack only a little was used from, like cheddar after 25 of 150 g, still counts as a full leftover. Check that the before → after numbers still feel meaningful
 
 #### Task 15: Single-meal suggestions
 **Description:** `/suggest` loads pantry + candidate recipes and ranks them with `suggestMeals`. Vegetarian toggle via search param. Each card links to the recipe and says which opened / expiring items it uses.
@@ -301,6 +304,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 - [ ] Every route has loading/error handling
 - [ ] Keyboard-only run through the full flow succeeds
 - [ ] No horizontal scroll at 375px on any page
+- [x] "Today" (expiry badges, urgency, sample expiry dates) is the cook's local date, not the server's UTC date (done early, with T13)
 **Verification:** manual checklist; Lighthouse accessibility ≥ 95 on each page.
 **Dependencies:** T20, T19
 **Files:** route segment files across `src/app/**`

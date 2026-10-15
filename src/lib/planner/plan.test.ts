@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ALPHA } from "./constants";
 import { pantry, recipe } from "./fixtures";
 import { planMeals } from "./plan";
 import { suggestMeals } from "./suggest";
@@ -95,6 +96,29 @@ describe("planMeals", () => {
     // garlic (clove) and salt (staple) never count as hard-to-use leftovers.
     expect(result.leftoversBefore).toBe(2);
     expect(result.leftoversAfter).toBe(1);
+  });
+
+  it("counts opened packs and cartons as hard-to-use leftovers", () => {
+    const fridge = pantry({ bacon: { qty: 300, opened: true }, milk: 1000, onion: 0.5 });
+    const result = planMeals(fridge, [], 1, { today: TODAY });
+    // The sealed milk isn't a leftover; the opened bacon and the half onion are.
+    expect(result.leftoversBefore).toBe(2);
+  });
+
+  it("leaves a carton opened once a planned meal uses part of it", () => {
+    const fridge = pantry({ milk: 1000 });
+    const result = planMeals(fridge, [recipe("pancakes", { milk: 200 })], 1, { today: TODAY });
+    expect(result.leftoversBefore).toBe(0);
+    expect(result.leftoversAfter).toBe(1);
+  });
+
+  it("treats a carton opened by an earlier meal as opened for the next pick", () => {
+    const fridge = pantry({ milk: 1000 });
+    const recipes = [recipe("latte", { milk: 900 }), recipe("custard", { milk: 50 })];
+    const result = planMeals(fridge, recipes, 2, { today: TODAY });
+    expect(titles(result.meals)).toEqual(["latte", "custard"]);
+    // Custard uses half of the 100 ml left, with the opened bonus and no new opened item.
+    expect(result.meals[1]?.score).toBeCloseTo(0.5 * (1 + ALPHA));
   });
 
   it("puts ingredients you don't have on the shopping list, summed across meals", () => {

@@ -15,6 +15,8 @@ export type PantryEntry = {
   unit: Unit;
   isStaple: boolean;
   expiresOn: IsoDate | null;
+  /** The `pantry_items.opened` flag; see `isOpened` for the full SPEC §3 rule. */
+  opened: boolean;
 };
 
 export type RecipeIngredient = {
@@ -30,11 +32,17 @@ export type RecipeEntry = {
   ingredients: RecipeIngredient[];
 };
 
-/** Pantry state during planning. Quantities are integer hundredths. */
-export type SimPantry = Map<
-  number,
-  { qty: number; unit: Unit; isStaple: boolean; expiresOn: IsoDate | null }
->;
+/** One pantry item during planning. `qty` is in integer hundredths. */
+export type SimItem = {
+  qty: number;
+  unit: Unit;
+  isStaple: boolean;
+  expiresOn: IsoDate | null;
+  opened: boolean;
+};
+
+/** Pantry state during planning, by ingredient id. */
+export type SimPantry = Map<number, SimItem>;
 
 export type ScoreResult =
   | { kind: "skipped"; coverage: number }

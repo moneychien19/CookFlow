@@ -6,12 +6,14 @@ import {
   GAMMA,
   URGENCY_HORIZON_DAYS,
 } from "./constants";
-import { isPartial, toHundredths } from "./quantity";
+import { isOpened, WEIGHED_UNITS } from "./opened";
+import { fromHundredths, toHundredths } from "./quantity";
 import type {
   IsoDate,
   PantryEntry,
   RecipeEntry,
   ScoreResult,
+  SimItem,
   SimPantry,
 } from "./types";
 
@@ -30,10 +32,20 @@ export function urgency(expiresOn: IsoDate | null, today: IsoDate): number {
 
 export function simulatePantry(entries: PantryEntry[]): SimPantry {
   const sim: SimPantry = new Map();
-  for (const { ingredientId, quantity, unit, isStaple, expiresOn } of entries) {
-    sim.set(ingredientId, { qty: toHundredths(quantity), unit, isStaple, expiresOn });
+  for (const { ingredientId, quantity, unit, isStaple, expiresOn, opened } of entries) {
+    sim.set(ingredientId, { qty: toHundredths(quantity), unit, isStaple, expiresOn, opened });
   }
   return sim;
+}
+
+/** SPEC §3 "opened" for a simulated item. */
+export function isSimOpened(item: SimItem): boolean {
+  return isOpened({ quantity: fromHundredths(item.qty), unit: item.unit, opened: item.opened });
+}
+
+/** The item after using `used` hundredths of it: a g/ml item with some left becomes opened (SPEC §6). */
+export function afterUse(item: SimItem, used: number): SimItem {
+  return { ...item, qty: item.qty - used, opened: item.opened || WEIGHED_UNITS.has(item.unit) };
 }
 
 /** Scores `recipe` against the current simulated pantry (SPEC §5). Staples are ignored. */
@@ -52,11 +64,11 @@ export function score(recipe: RecipeEntry, pantry: SimPantry, today: IsoDate): S
     const need = toHundredths(ingredient.quantity);
     const used = Math.min(need, have);
     const weight =
-      1 + (isPartial(have) ? ALPHA : 0) + BETA * urgency(item.expiresOn, today);
+      1 + (isSimOpened(item) ? ALPHA : 0) + BETA * urgency(item.expiresOn, today);
     // Share, not raw quantity: units differ (4 cloves vs 1 pack), so using up an item counts 1.
     use += (used / have) * weight;
 
-    if (!isPartial(have) && isPartial(have - used)) newPartial += 1;
+    if (!isSimOpened(item) && isSimOpened(afterUse(item, used))) newPartial += 1;
   }
 
   const coverage = needs.length === 0 ? 0 : available / needs.length;

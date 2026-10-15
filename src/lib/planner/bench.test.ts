@@ -10,6 +10,7 @@ function syntheticPantry(): PantryEntry[] {
     unit: "whole",
     isStaple: false,
     expiresOn: i % 3 === 0 ? "2026-10-15" : null,
+    opened: false,
   }));
 }
 

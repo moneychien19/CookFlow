@@ -96,6 +96,34 @@ describe("score", () => {
     const result = scored(scoreOf(recipe("soup", { onion: 0.5 }), fridge));
     expect(result.newPartial).toBe(0);
   });
+
+  it("gives an opened pack of bacon the opened bonus that a sealed one doesn't get", () => {
+    const carbonara = recipe("carbonara", { bacon: 100 });
+    const opened = scored(scoreOf(carbonara, pantry({ bacon: { qty: 300, opened: true } })));
+    const sealed = scored(scoreOf(carbonara, pantry({ bacon: 300 })));
+    expect(opened.score).toBeGreaterThan(sealed.score);
+  });
+
+  it("counts using 200 g of a sealed 500 g pack as one new opened item", () => {
+    const result = scored(scoreOf(recipe("carbonara", { bacon: 200 }), pantry({ bacon: 500 })));
+    expect(result.newPartial).toBe(1);
+  });
+
+  it("does not count using part of an opened pack as a new opened item", () => {
+    const fridge = pantry({ bacon: { qty: 500, opened: true } });
+    const result = scored(scoreOf(recipe("carbonara", { bacon: 200 }), fridge));
+    expect(result.newPartial).toBe(0);
+  });
+
+  it("does not count using up a whole sealed pack as a new opened item", () => {
+    const result = scored(scoreOf(recipe("carbonara", { bacon: 500 }), pantry({ bacon: 500 })));
+    expect(result.newPartial).toBe(0);
+  });
+
+  it("does not count using 1 of 3 onions as a new opened item", () => {
+    const result = scored(scoreOf(recipe("soup", { onion: 1 }), pantry({ onion: 3 })));
+    expect(result.newPartial).toBe(0);
+  });
 });
 
 describe("urgency", () => {

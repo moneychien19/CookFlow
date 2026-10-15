@@ -124,8 +124,8 @@ The serif is for headings ≥ 24px only. Never set body text, labels, or numbers
 - Earth tones are for **status and data**, never for buttons:
   | Meaning | Treatment |
   |---|---|
-  | Partial / opened item | `gold-pale` badge with `espresso` text |
-  | Expiring within 3 days | `clay` badge with white text |
+  | Partial / opened item | `gold-pale` at 50% (`bg-gold-pale/50`) badge with `espresso` text |
+  | Expiry date | Plain text with the distance: "Oct 16 (in 2 days)", "(expired)". No colored badge |
   | Ingredient you have (recipe page) | `sage-pale` badge with `forest` text (olive text on sage-pale is below AA) |
   | Missing ingredient / shopping list | `hairline` border or divider; `stone` text for anything essential (`ash` only for non-essential captions) |
   | Leftovers before → after | "Before" in `gold`, "after" in `olive`; show it as a `stat-badge` pair |
