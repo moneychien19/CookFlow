@@ -6,7 +6,7 @@ import { Badge } from "./Badge";
 import { Button, buttonClass } from "./Button";
 import { Card } from "./Card";
 import { EmptyState } from "./EmptyState";
-import { TextField } from "./Input";
+import { Checkbox, SelectField, TextField } from "./Input";
 import { StatBadgePair } from "./StatBadgePair";
 import { Toast } from "./Toast";
 
@@ -79,6 +79,37 @@ describe("TextField", () => {
     const input = render(<TextField label="Quantity" name="quantity" />).querySelector("input");
     expect(input?.hasAttribute("aria-invalid")).toBe(false);
     expect(input?.className).not.toContain("error");
+  });
+});
+
+describe("TextField hint", () => {
+  it("describes the input with the hint and the error together", () => {
+    const field = render(<TextField label="Amount" name="quantity" hint="in grams" error="Enter a number" />);
+    const ids = field.querySelector("input")?.getAttribute("aria-describedby")?.split(" ") ?? [];
+    expect(ids.map((id) => field.querySelector(`#${id}`)?.textContent)).toEqual(["in grams", "Enter a number"]);
+  });
+});
+
+describe("SelectField", () => {
+  it("links the label to the select and marks it invalid with the error", () => {
+    const field = render(
+      <SelectField label="Ingredient" name="ingredientId" error="Pick an ingredient">
+        <option value="">Choose…</option>
+      </SelectField>,
+    );
+    const select = field.querySelector("select");
+    expect(field.querySelector("label")?.getAttribute("for")).toBe(select?.id);
+    expect(select?.getAttribute("aria-invalid")).toBe("true");
+    expect(field.querySelector(`#${select?.getAttribute("aria-describedby")}`)?.textContent).toBe("Pick an ingredient");
+  });
+});
+
+describe("Checkbox", () => {
+  it("wraps the box in its label so the text is clickable", () => {
+    const label = render(<Checkbox name="opened" label="Opened" />);
+    expect(label.tagName).toBe("LABEL");
+    expect(label.querySelector("input")?.getAttribute("type")).toBe("checkbox");
+    expect(label.textContent).toBe("Opened");
   });
 });
 
