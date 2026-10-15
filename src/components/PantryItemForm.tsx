@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { type Ref, useActionState, useEffect, useId, useRef, useState } from "react";
 import { addItem, editItem, type PantryFormState } from "@/app/pantry/actions";
 import { Button } from "@/components/ui/Button";
 import { Checkbox, SelectField, TextField } from "@/components/ui/Input";
 import type { IngredientOption, PantryRow } from "@/lib/db/pantry";
 import { IngredientCombobox } from "@/components/IngredientCombobox";
+import { useShowSaved } from "@/components/useShowSaved";
 import { normalizeIngredientName } from "@/lib/ingredient-search";
 import { amountHint, UNIT_CHOICES } from "@/lib/pantry-display";
 import { type Unit, WEIGHED_UNITS } from "@/lib/planner";
+
+type FailedState = Extract<PantryFormState, { ok: false }> | null;
+
+/** The state to show in the form: only a failed submit has errors and typed values. */
+const failedOnly = (state: PantryFormState): FailedState => (state?.ok === false ? state : null);
 
 /** Amount, expiry, and (for g/ml items only, SPEC §3) the opened box. */
 function ItemFields({
@@ -17,10 +23,12 @@ function ItemFields({
   unit,
   state,
   defaults,
+  quantityRef,
 }: {
+  quantityRef?: Ref<HTMLInputElement>;
   idPrefix: string;
   unit: Unit | undefined;
-  state: PantryFormState;
+  state: FailedState;
   defaults: { quantity: string; expiresOn: string; opened: boolean };
 }) {
   const values = state?.values;
@@ -28,6 +36,7 @@ function ItemFields({
     <>
       <TextField
         id={`${idPrefix}-quantity`}
+        ref={quantityRef}
         name="quantity"
         label="Amount"
         inputMode="decimal"
@@ -61,7 +70,9 @@ function ItemFields({
  * server returns what was typed, and `submittedAt` remounts the fields to show it.
  */
 export function AddPantryItemForm({ options }: { options: IngredientOption[] }) {
-  const [state, formAction, pending] = useActionState(addItem, null);
+  const [result, formAction, pending] = useActionState(addItem, null);
+  useShowSaved(result);
+  const state = failedOnly(result);
   const [text, setText] = useState(() => {
     const picked = options.find((o) => String(o.id) === state?.values.ingredientId);
     return picked?.name ?? state?.values.newName ?? "";
@@ -121,16 +132,24 @@ export function AddPantryItemForm({ options }: { options: IngredientOption[] }) 
 
 /** Inline edit of one item's amount, expiry, and opened flag. Cancel goes back to the plain list. */
 export function EditPantryItemForm({ item }: { item: PantryRow }) {
-  const [state, formAction, pending] = useActionState(editItem, null);
+  const [result, formAction, pending] = useActionState(editItem, null);
+  useShowSaved(result);
+  const state = failedOnly(result);
+  const quantityRef = useRef<HTMLInputElement>(null);
+  // useId, not the item id: the row renders twice (table and phone card), and ids must stay unique.
+  const idPrefix = useId();
+  // Focus the amount when the row opens: keyboard users land in the form, and it scrolls into view if needed.
+  useEffect(() => quantityRef.current?.focus(), []);
   return (
     <form key={state?.submittedAt} action={formAction} className="flex flex-col gap-md">
       <p className="text-body-sm text-ink">Edit {item.name}</p>
       <input type="hidden" name="id" value={item.id} />
       <div className="grid gap-md tablet:grid-cols-3 tablet:items-start">
         <ItemFields
-          idPrefix={`edit-${item.id}`}
+          idPrefix={idPrefix}
           unit={item.unit}
           state={state}
+          quantityRef={quantityRef}
           defaults={{ quantity: String(item.quantity), expiresOn: item.expiresOn ?? "", opened: item.opened }}
         />
       </div>
@@ -139,7 +158,7 @@ export function EditPantryItemForm({ item }: { item: PantryRow }) {
         <Button type="submit" disabled={pending}>
           {pending ? "Saving…" : "Save"}
         </Button>
-        <Link href="/pantry" className="inline-flex min-h-touch items-center px-xs text-ui text-stone underline">
+        <Link href="/pantry" scroll={false} className="inline-flex min-h-touch items-center px-xs text-ui text-stone underline">
           Cancel
         </Link>
       </div>

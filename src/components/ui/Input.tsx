@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, LabelHTMLAttributes, SelectHTMLAttributes } from "react";
+import type { ComponentProps, InputHTMLAttributes, LabelHTMLAttributes, SelectHTMLAttributes } from "react";
 import { cx } from "./cx";
 
 export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
@@ -7,7 +7,8 @@ export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElem
 
 const fieldClass = "min-h-touch w-full rounded-md border bg-surface px-md text-body-sm text-ink";
 
-type InputProps = InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean };
+/** Includes `ref`, which React 19 passes as an ordinary prop. */
+type InputProps = ComponentProps<"input"> & { invalid?: boolean };
 
 /** White field with a hairline border; the error border appears only when invalid. */
 export function Input({ invalid = false, className, ...props }: InputProps) {

@@ -5,7 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DeleteItemButton } from "./DeleteItemButton";
 
 // The real actions pull in Auth.js; these tests only drive the dialog.
-vi.mock("@/app/pantry/actions", () => ({ deleteItem: vi.fn() }));
+const actions = vi.hoisted(() => ({ deleteItem: vi.fn() }));
+vi.mock("@/app/pantry/actions", () => actions);
+const router = vi.hoisted(() => ({ replace: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -61,5 +64,12 @@ describe("DeleteItemButton", () => {
     act(() => button("Delete").click());
     act(() => button("Cancel").click());
     expect(dialog()?.open).toBe(false);
+  });
+
+  it("after deleting, shows the toast without scrolling the page", async () => {
+    actions.deleteItem.mockResolvedValue({ ok: true, savedAt: 7 });
+    act(() => button("Delete").click());
+    await act(async () => dialog()?.querySelector("form")?.requestSubmit());
+    expect(router.replace).toHaveBeenCalledWith("/pantry?saved=7", { scroll: false });
   });
 });

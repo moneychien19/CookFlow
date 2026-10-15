@@ -15,7 +15,7 @@ const linkClass = "inline-flex min-h-touch items-center px-xs text-ui text-stone
 function ItemActions({ item }: { item: PantryRow }) {
   return (
     <div className="flex flex-wrap items-center justify-end gap-xs">
-      <Link href={`/pantry?edit=${item.id}`} className={linkClass} aria-label={`Edit ${item.name}`}>
+      <Link href={`/pantry?edit=${item.id}`} scroll={false} className={linkClass} aria-label={`Edit ${item.name}`}>
         Edit
       </Link>
       <DeleteItemButton id={item.id} name={item.name} />

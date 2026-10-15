@@ -9,17 +9,26 @@ import { SAMPLE_PANTRY } from "@/lib/sample-pantry";
 import { requireUserId } from "@/lib/session";
 import { type FormValues, formValues, parseAddItem, parseDeleteItem, parseEditItem } from "@/lib/validation/pantry";
 
-/** What a pantry form shows after a failed submit. `submittedAt` remounts the form with `values`. */
-export type PantryFormState = {
-  fieldErrors: Partial<Record<string, string>>;
-  values: FormValues;
-  submittedAt: number;
-} | null;
+/**
+ * A pantry form's result. On failure: the errors and what was typed (`submittedAt`
+ * remounts the form to show it). On success: `savedAt`, which the client turns into
+ * `/pantry?saved=…` with scrolling off, so the cook stays where they were.
+ */
+export type PantryFormState =
+  | { ok: false; fieldErrors: Partial<Record<string, string>>; values: FormValues; submittedAt: number }
+  | { ok: true; savedAt: number }
+  | null;
 
-/** Back to the plain pantry (closing any edit row), with a fresh key for the "Pantry updated" toast. */
-function backToPantry(): never {
+const failed = (fieldErrors: Partial<Record<string, string>>, values: FormValues): PantryFormState => ({
+  ok: false,
+  fieldErrors,
+  values,
+  submittedAt: Date.now(),
+});
+
+function saved(): PantryFormState {
   revalidatePath("/pantry");
-  redirect(`/pantry?saved=${Date.now()}`);
+  return { ok: true, savedAt: Date.now() };
 }
 
 /** "Load sample pantry": replaces the user's pantry with SAMPLE_PANTRY. Takes no input. */
@@ -28,38 +37,40 @@ export async function loadSamplePantry() {
   const result = await replacePantryWithSample(getDb(), userId, SAMPLE_PANTRY, todayIso(new Date()));
   // A mismatch means the sample and the deployed catalog drifted apart: a bug, not a user error.
   if (!result.ok) throw new Error(result.error);
-  backToPantry();
+  revalidatePath("/pantry");
+  // The button sits at the top of the page, so the redirect's scroll to the top doesn't move anything.
+  redirect(`/pantry?saved=${Date.now()}`);
 }
 
 export async function addItem(_state: PantryFormState, formData: FormData): Promise<PantryFormState> {
   const userId = await requireUserId();
   const parsed = parseAddItem(formData);
-  if (!parsed.ok) return { fieldErrors: parsed.fieldErrors, values: parsed.values, submittedAt: Date.now() };
+  if (!parsed.ok) return failed(parsed.fieldErrors, parsed.values);
 
   const result = await addPantryItem(getDb(), userId, parsed.data);
   if (!result.ok) {
     const field = parsed.data.ingredient.kind === "new" ? "newName" : "ingredientId";
-    return { fieldErrors: { [field]: result.error }, values: formValues(formData), submittedAt: Date.now() };
+    return failed({ [field]: result.error }, formValues(formData));
   }
-  backToPantry();
+  return saved();
 }
 
 export async function editItem(_state: PantryFormState, formData: FormData): Promise<PantryFormState> {
   const userId = await requireUserId();
   const parsed = parseEditItem(formData);
-  if (!parsed.ok) return { fieldErrors: parsed.fieldErrors, values: parsed.values, submittedAt: Date.now() };
+  if (!parsed.ok) return failed(parsed.fieldErrors, parsed.values);
 
   const result = await editPantryItem(getDb(), userId, parsed.data);
-  if (!result.ok) {
-    return { fieldErrors: { form: result.error }, values: formValues(formData), submittedAt: Date.now() };
-  }
-  backToPantry();
+  if (!result.ok) return failed({ form: result.error }, formValues(formData));
+  return saved();
 }
 
-export async function deleteItem(formData: FormData) {
+export async function deleteItem(_state: PantryFormState, formData: FormData): Promise<PantryFormState> {
   const userId = await requireUserId();
   const parsed = parseDeleteItem(formData);
-  // Already gone (a double click) or not this user's: nothing to delete, nothing to report.
-  if (parsed.ok && (await deletePantryItem(getDb(), userId, parsed.data.id)).ok) backToPantry();
-  redirect("/pantry");
+  if (!parsed.ok) return failed(parsed.fieldErrors, parsed.values);
+
+  const result = await deletePantryItem(getDb(), userId, parsed.data.id);
+  if (!result.ok) return failed({ form: result.error }, formValues(formData));
+  return saved();
 }

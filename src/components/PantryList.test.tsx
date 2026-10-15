@@ -6,6 +6,7 @@ import { PantryList } from "./PantryList";
 
 // The real actions pull in Auth.js; these tests only render markup.
 vi.mock("@/app/pantry/actions", () => ({ addItem: vi.fn(), editItem: vi.fn(), deleteItem: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 
 const TODAY = "2026-10-14";
 const row = (overrides: Partial<PantryRow>): PantryRow => ({
@@ -81,5 +82,10 @@ describe("PantryList", () => {
   it("offers the opened box only for weighed items", () => {
     const onionRow = render(items, 3).querySelectorAll("tbody tr")[2];
     expect(onionRow?.querySelector('input[name="opened"]')).toBeNull();
+  });
+
+  it("keeps ids unique while a row is edited, though the table and the cards both render it", () => {
+    const ids = [...render(items, 2).querySelectorAll("[id]")].map((el) => el.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });

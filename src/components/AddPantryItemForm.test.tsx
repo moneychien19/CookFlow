@@ -6,7 +6,10 @@ import type { IngredientOption } from "@/lib/db/pantry";
 import { AddPantryItemForm } from "./PantryItemForm";
 
 // The real actions pull in Auth.js; these tests only drive the form in the browser.
-vi.mock("@/app/pantry/actions", () => ({ addItem: vi.fn(), editItem: vi.fn(), deleteItem: vi.fn() }));
+const actions = vi.hoisted(() => ({ addItem: vi.fn(), editItem: vi.fn(), deleteItem: vi.fn() }));
+vi.mock("@/app/pantry/actions", () => actions);
+const router = vi.hoisted(() => ({ replace: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -109,5 +112,12 @@ describe("AddPantryItemForm ingredient combobox", () => {
     press("Escape");
     expect(combobox().getAttribute("aria-expanded")).toBe("false");
     expect(host.querySelector('[role="listbox"]')).toBeNull();
+  });
+
+  it("after a successful add, shows the toast without scrolling the page", async () => {
+    actions.addItem.mockResolvedValue({ ok: true, savedAt: 42 });
+    type("onion");
+    await act(async () => host.querySelector("form")?.requestSubmit());
+    expect(router.replace).toHaveBeenCalledWith("/pantry?saved=42", { scroll: false });
   });
 });
