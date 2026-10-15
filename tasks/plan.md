@@ -179,18 +179,19 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 **Files:** `src/lib/auth.ts`, `src/app/api/auth/[...nextauth]/route.ts`, `src/lib/session.ts`, `src/app/demo/actions.ts`
 **Scope:** M
 
-#### Task 12: Pantry list with sample-pantry empty state
+#### Task 12: Pantry list with sample-pantry empty state ✅
 **Description:** `/pantry` Server Component listing the user's items (table on desktop, cards on mobile) with Opened / Expires-in badges. Empty pantry shows `EmptyState` with the blue "Load sample pantry" Server Action, which writes `SAMPLE_PANTRY` (`src/lib/sample-pantry.ts`) with expiry dates counted from today.
 **Acceptance criteria:**
-- [ ] Single indexed query scoped by session `user_id`
-- [ ] Opened (SPEC §3) and ≤3-day-expiry items carry text badges
-- [ ] Loading the sample pantry replaces the current pantry (so it doubles as the demo reset) and never duplicates rows
-- [ ] A sample item missing from `ingredients`, or with a different unit, fails with a clear error instead of being skipped
-- [ ] On a non-empty pantry, "Load sample pantry" is a secondary button behind a confirmation
+- [x] Single indexed query scoped by session `user_id`
+- [x] Opened (SPEC §3) and ≤3-day-expiry items carry text badges
+- [x] Loading the sample pantry replaces the current pantry (so it doubles as the demo reset) and never duplicates rows
+- [x] A sample item missing from `ingredients`, or with a different unit, fails with a clear error instead of being skipped
+- [x] On a non-empty pantry, "Load sample pantry" is a secondary button behind a confirmation
 **Verification:** manual as the demo user; a query test against a Neon branch for user scoping.
 **Dependencies:** T4, T8a (the shared "opened" helper), T11
 **Files:** `src/app/pantry/{page,loading,error}.tsx`, `src/components/PantryList.tsx`, `src/lib/db/pantry.ts`, `src/app/pantry/actions.ts`
 **Scope:** M
+**Known issue:** "today" is the server's UTC date, so in the evening in the Americas every expiry label is a day early (found 2026-10-14 at 21:00 EDT). Fixed in T21.
 
 #### Task 13: Pantry add / edit / delete
 **Description:** Add form with ingredient picker (canonical list, unit shown), quantity, optional expiry, an "opened" checkbox; inline edit and delete with confirmation. All Server Actions follow the four CLAUDE.md rules; quantities rounded to 2 dp.
@@ -302,6 +303,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 - [ ] Every route has loading/error handling
 - [ ] Keyboard-only run through the full flow succeeds
 - [ ] No horizontal scroll at 375px on any page
+- [ ] "Today" (expiry badges, urgency, sample expiry dates) is the cook's local date, not the server's UTC date
 **Verification:** manual checklist; Lighthouse accessibility ≥ 95 on each page.
 **Dependencies:** T20, T19
 **Files:** route segment files across `src/app/**`
