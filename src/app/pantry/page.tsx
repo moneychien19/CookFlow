@@ -1,17 +1,29 @@
+import { FlashToast } from "@/components/FlashToast";
+import { AddPantryItemForm } from "@/components/PantryItemForm";
 import { PantryList } from "@/components/PantryList";
 import { Button, buttonClass } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDb } from "@/lib/db/client";
-import { listPantry } from "@/lib/db/pantry";
+import { listIngredientOptions, listPantry } from "@/lib/db/pantry";
 import { todayIso } from "@/lib/dates";
 import { DEMO_USER_ID } from "@/lib/demo";
 import { requireUserId } from "@/lib/session";
 import { loadSamplePantry } from "./actions";
 
-export default async function PantryPage() {
+/** A search param as a single string; anything else (absent, repeated) is undefined. */
+const single = (value: string | string[] | undefined) => (typeof value === "string" ? value : undefined);
+
+export default async function PantryPage({ searchParams }: PageProps<"/pantry">) {
   const userId = await requireUserId();
-  const items = await listPantry(getDb(), userId);
+  const params = await searchParams;
+  const db = getDb();
+  const [items, options] = await Promise.all([listPantry(db, userId), listIngredientOptions(db)]);
   const today = todayIso(new Date());
+  // Only an id from this user's own list opens a row for editing.
+  const editParam = Number(single(params.edit));
+  const editId = items.some((item) => item.id === editParam) ? editParam : null;
+  const saved = single(params.saved);
 
   return (
     <>
@@ -38,6 +50,11 @@ export default async function PantryPage() {
         )}
       </div>
 
+      <Card as="section" className="mt-xl">
+        <h2 className="mb-md text-body-lg">Add an item</h2>
+        <AddPantryItemForm key={saved} options={options} />
+      </Card>
+
       <div className="mt-xl">
         {items.length === 0 ? (
           <EmptyState
@@ -51,9 +68,11 @@ export default async function PantryPage() {
             }
           />
         ) : (
-          <PantryList items={items} today={today} />
+          <PantryList items={items} today={today} editId={editId} />
         )}
       </div>
+
+      {saved && <FlashToast key={saved} message="Pantry updated" param="saved" />}
     </>
   );
 }

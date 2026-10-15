@@ -193,13 +193,13 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 **Scope:** M
 **Known issue:** "today" is the server's UTC date, so in the evening in the Americas every expiry label is a day early (found 2026-10-14 at 21:00 EDT). Fixed in T21.
 
-#### Task 13: Pantry add / edit / delete
+#### Task 13: Pantry add / edit / delete ✅
 **Description:** Add form with ingredient picker (canonical list, unit shown), quantity, optional expiry, an "opened" checkbox; inline edit and delete with confirmation. All Server Actions follow the four CLAUDE.md rules; quantities rounded to 2 dp.
 **Acceptance criteria:**
-- [ ] Invalid quantity (≤ 0, non-number) shows a field error, nothing written
-- [ ] Adding an ingredient already in the pantry updates it instead of failing on the unique constraint
-- [ ] Cannot edit or delete another user's item (test with a forged id)
-- [ ] "Pantry updated" toast after each change
+- [x] Invalid quantity (≤ 0, non-number) shows a field error, nothing written
+- [x] Adding an ingredient already in the pantry updates it instead of failing on the unique constraint (amounts add up; SPEC §3)
+- [x] Cannot edit or delete another user's item (test with a forged id)
+- [x] "Pantry updated" toast after each change
 **Verification:** action tests against a Neon branch; manual keyboard-only pass.
 **Dependencies:** T12. **Needs you:** a Neon `test` branch made from dev (so it has the recipe catalog) for `TEST_DATABASE_URL`. These tests write rows, so they shouldn't run on dev.
 **Files:** `src/app/pantry/actions.ts`, `src/components/PantryItemForm.tsx`, `src/lib/db/pantry.ts`, `src/lib/validation/pantry.ts`

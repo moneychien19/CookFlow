@@ -1,8 +1,11 @@
 // @vitest-environment jsdom
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { PantryRow } from "@/lib/db/pantry";
 import { PantryList } from "./PantryList";
+
+// The real actions pull in Auth.js; these tests only render markup.
+vi.mock("@/app/pantry/actions", () => ({ addItem: vi.fn(), editItem: vi.fn(), deleteItem: vi.fn() }));
 
 const TODAY = "2026-10-14";
 const row = (overrides: Partial<PantryRow>): PantryRow => ({
@@ -17,9 +20,9 @@ const row = (overrides: Partial<PantryRow>): PantryRow => ({
   ...overrides,
 });
 
-function render(items: PantryRow[]) {
+function render(items: PantryRow[], editId: number | null = null) {
   const host = document.createElement("div");
-  host.innerHTML = renderToStaticMarkup(<PantryList items={items} today={TODAY} />);
+  host.innerHTML = renderToStaticMarkup(<PantryList items={items} today={TODAY} editId={editId} />);
   return host;
 }
 
@@ -54,6 +57,29 @@ describe("PantryList", () => {
 
   it("gives the table column headers", () => {
     const headers = [...render(items).querySelectorAll("thead th")].map((th) => th.textContent);
-    expect(headers).toEqual(["Ingredient", "Amount", "Expires", "Status"]);
+    expect(headers).toEqual(["Ingredient", "Amount", "Expires", "Status", "Actions"]);
+  });
+
+  it("names the item in each Edit and Delete control for screen readers", () => {
+    const labels = [...render(items).querySelectorAll("table [aria-label]")].map((el) => el.getAttribute("aria-label"));
+    expect(labels).toContain("Edit bacon");
+    expect(labels).toContain("Delete bacon");
+  });
+
+  it("asks before deleting", () => {
+    const row = render(items).querySelector("tbody tr");
+    expect(row?.querySelector("details form")?.textContent).toContain("Remove chicken breast?");
+  });
+
+  it("turns the row being edited into a form filled with its values", () => {
+    const row = render(items, 2).querySelectorAll("tbody tr")[1];
+    const quantity = row?.querySelector<HTMLInputElement>('input[name="quantity"]');
+    expect(quantity?.value).toBe("150");
+    expect(row?.querySelector<HTMLInputElement>('input[name="opened"]')?.checked).toBe(true);
+  });
+
+  it("offers the opened box only for weighed items", () => {
+    const onionRow = render(items, 3).querySelectorAll("tbody tr")[2];
+    expect(onionRow?.querySelector('input[name="opened"]')).toBeNull();
   });
 });

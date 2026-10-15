@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expiryText, formatQuantity } from "./pantry-display";
+import { amountHint, expiryText, formatQuantity } from "./pantry-display";
 
 const TODAY = "2026-10-14";
 describe("formatQuantity", () => {
@@ -37,5 +37,14 @@ describe("expiryText", () => {
 
   it("says expired for a past date", () => {
     expect(expiryText("2026-10-12", TODAY)).toBe("Oct 12 (expired)");
+  });
+});
+
+describe("amountHint", () => {
+  it("tells the cook which unit to type the amount in", () => {
+    expect(amountHint("g")).toBe("in grams");
+    expect(amountHint("ml")).toBe("in millilitres");
+    expect(amountHint("whole")).toBe("how many, e.g. 0.5 for half");
+    expect(amountHint("clove")).toBe("number of cloves");
   });
 });

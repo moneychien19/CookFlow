@@ -25,3 +25,18 @@ export function expiryText(expiresOn: IsoDate, today: IsoDate): string {
     days < 0 ? "expired" : days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
   return `${DATE_FORMAT.format(new Date(`${expiresOn}T00:00:00Z`))} (${relative})`;
 }
+
+const AMOUNT_HINTS: Record<Unit, string> = {
+  g: "in grams",
+  ml: "in millilitres",
+  whole: "how many, e.g. 0.5 for half",
+  count: "how many",
+  clove: "number of cloves",
+  bunch: "number of bunches, e.g. 0.5",
+  pack: "number of packs",
+};
+
+/** Shown under the amount field, so the cook types it in the ingredient's unit. */
+export function amountHint(unit: Unit): string {
+  return AMOUNT_HINTS[unit];
+}

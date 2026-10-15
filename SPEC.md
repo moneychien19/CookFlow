@@ -117,6 +117,8 @@ A weight alone can't tell a leftover from a smaller pack (300 g could be either)
 
 **Hard-to-use leftover:** a non-staple opened item.
 
+**Adding an item that's already in the pantry** adds to its amount, keeps the earlier expiry date, and keeps it opened if either one was. The pantry has one row per ingredient, and the add form offers non-staple ingredients only (the planner ignores staples).
+
 Recipe pages display `source_name` + `source_measure` (exact source text). The canonical `quantity` is used only by the planner and by "mark cooked".
 
 ---
