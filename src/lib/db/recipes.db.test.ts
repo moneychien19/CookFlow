@@ -25,6 +25,8 @@ describe.skipIf(!url)("getRecipe (real Postgres)", () => {
       ingredientId: expect.any(Number),
       sourceName: expect.any(String),
       sourceMeasure: expect.any(String),
+      name: expect.any(String),
+      unit: expect.any(String),
       quantity: expect.any(Number),
       isStaple: false,
     });

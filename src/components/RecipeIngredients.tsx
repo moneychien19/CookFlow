@@ -1,6 +1,6 @@
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import type { RecipeDetail } from "@/lib/db/recipes";
-import { type IngredientStatus, ingredientStatus } from "@/lib/recipe-display";
+import { conversionHint, type IngredientStatus, ingredientStatus } from "@/lib/recipe-display";
 
 const BADGES: Record<IngredientStatus, { variant: BadgeVariant; text: string }> = {
   have: { variant: "have", text: "Have" },
@@ -32,6 +32,7 @@ export function RecipeIngredients({ ingredients, pantry }: RecipeIngredientsProp
       <ul className="mt-md">
         {ingredients.map((ingredient, index) => {
           const badge = BADGES[statuses[index] ?? "missing"];
+          const hint = conversionHint(ingredient);
           return (
             <li
               key={ingredient.ingredientId}
@@ -40,6 +41,12 @@ export function RecipeIngredients({ ingredients, pantry }: RecipeIngredientsProp
               <span>
                 <span className="text-ink">{ingredient.sourceName}</span>{" "}
                 <span className="text-stone">{ingredient.sourceMeasure}</span>
+                {hint && (
+                  <>
+                    {" "}
+                    <span className="text-ui text-stone">{hint}</span>
+                  </>
+                )}
               </span>
               <Badge variant={badge.variant}>{badge.text}</Badge>
             </li>

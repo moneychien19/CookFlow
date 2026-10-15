@@ -1,4 +1,5 @@
 import { asc, eq } from "drizzle-orm";
+import type { Unit } from "@/lib/planner";
 import type { Db } from "./client";
 import { ingredients, recipeIngredients, recipes } from "./schema";
 
@@ -16,7 +17,9 @@ export type RecipeDetail = {
     /** Exactly as the source wrote them (SPEC §7a #9). */
     sourceName: string;
     sourceMeasure: string;
-    /** Canonical amount, only for comparing against the pantry. */
+    /** Canonical ingredient and amount: for comparing against the pantry, and the "≈" hint. */
+    name: string;
+    unit: Unit;
     quantity: number;
     isStaple: boolean;
   }[];
@@ -46,6 +49,8 @@ export async function getRecipe(db: Db, id: number): Promise<RecipeDetail | null
       ingredientId: recipeIngredients.ingredientId,
       sourceName: recipeIngredients.sourceName,
       sourceMeasure: recipeIngredients.sourceMeasure,
+      name: ingredients.name,
+      unit: ingredients.unit,
       quantity: recipeIngredients.quantity,
       isStaple: ingredients.isStaple,
     })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ingredientStatus, instructionSteps } from "./recipe-display";
+import { conversionHint, ingredientStatus, instructionSteps } from "./recipe-display";
 
 describe("instructionSteps", () => {
   it("splits numbered lines into steps, dropping only the numbers", () => {
@@ -36,5 +36,39 @@ describe("ingredientStatus", () => {
 
   it("treats staples as on hand, as the planner does", () => {
     expect(ingredientStatus({ need: 1, have: undefined, isStaple: true })).toBe("staple");
+  });
+});
+
+describe("conversionHint", () => {
+  const hint = (sourceMeasure: string, quantity: number, unit: Parameters<typeof conversionHint>[0]["unit"], name = "onion") =>
+    conversionHint({ sourceMeasure, quantity, unit, name, isStaple: false });
+
+  it("shows the stored amount in the ingredient's own unit", () => {
+    expect(hint("1/2 cup", 0.5, "whole")).toBe("≈ 0.5 × onion");
+    expect(hint("2 large", 400, "g", "chicken breast")).toBe("≈ 400 g");
+    expect(hint("1 tsp", 1, "clove", "garlic")).toBe("≈ 1 clove");
+    expect(hint("Handful", 0.3, "bunch", "cilantro")).toBe("≈ 0.3 bunch");
+  });
+
+  it("rounds weights and volumes of 10 or more to whole numbers", () => {
+    expect(hint("1/2 lb", 226.8, "g", "beef")).toBe("≈ 227 g");
+    expect(hint("1 tsp", 2.5, "g", "ginger")).toBe("≈ 2.5 g");
+  });
+
+  it("stays quiet when the source already says the same amount in the same unit", () => {
+    expect(hint("500 g", 500, "g", "beef")).toBeNull();
+    expect(hint("500g", 500, "g", "beef")).toBeNull();
+    expect(hint("2", 2, "count", "egg")).toBeNull();
+    expect(hint("1/2 ", 0.5, "count", "egg")).toBeNull();
+    expect(hint("3 cloves", 3, "clove", "garlic")).toBeNull();
+    expect(hint("1 chopped", 1, "whole")).toBeNull();
+  });
+
+  it("still explains a count the source measured in cups or spoons", () => {
+    expect(hint("1 cup", 1, "whole")).toBe("≈ 1 × onion");
+  });
+
+  it("stays quiet for staples, whose amount is only a placeholder", () => {
+    expect(conversionHint({ sourceMeasure: "pinch", quantity: 1, unit: "g", name: "salt", isStaple: true })).toBeNull();
   });
 });

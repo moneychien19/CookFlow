@@ -4,11 +4,16 @@ import { describe, expect, it } from "vitest";
 import type { RecipeDetail } from "@/lib/db/recipes";
 import { RecipeIngredients } from "./RecipeIngredients";
 
-const ingredients: RecipeDetail["ingredients"] = [
-  { ingredientId: 1, sourceName: "Chicken Breasts", sourceMeasure: "2 large", quantity: 400, isStaple: false },
-  { ingredientId: 2, sourceName: "Onion", sourceMeasure: "1 chopped", quantity: 1, isStaple: false },
-  { ingredientId: 3, sourceName: "Coriander", sourceMeasure: "Handful", quantity: 0.3, isStaple: false },
-  { ingredientId: 4, sourceName: "Salt", sourceMeasure: "To taste", quantity: 1, isStaple: true },
+type Line = RecipeDetail["ingredients"][number];
+function row(id: number, sourceName: string, sourceMeasure: string, name: string, unit: Line["unit"], quantity: number): Line {
+  return { ingredientId: id, sourceName, sourceMeasure, name, unit, quantity, isStaple: false };
+}
+
+const ingredients: Line[] = [
+  row(1, "Chicken Breasts", "2 large", "chicken breast", "g", 400),
+  row(2, "Onion", "1/2 cup", "onion", "whole", 1),
+  row(3, "Coriander", "Handful", "cilantro", "bunch", 0.3),
+  { ...row(4, "Salt", "To taste", "salt", "g", 1), isStaple: true },
 ];
 const pantry = new Map([
   [1, 450],
@@ -40,5 +45,10 @@ describe("RecipeIngredients", () => {
 
   it("sums up how many non-staple ingredients the cook has", () => {
     expect(render().querySelector("p")?.textContent).toBe("You have 2 of 3 ingredients (1 only partly).");
+  });
+
+  it("adds the stored amount after a measure the planner had to convert", () => {
+    expect(rows()[1]).toContain("1/2 cup ≈ 1 × onion");
+    expect(rows()[3]).not.toContain("≈");
   });
 });
