@@ -203,6 +203,7 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 **Verification:** action tests against a Neon branch; manual keyboard-only pass.
 **Dependencies:** T12. **Needs you:** a Neon `test` branch made from dev (so it has the recipe catalog) for `TEST_DATABASE_URL`. These tests write rows, so they shouldn't run on dev.
 **Files:** `src/app/pantry/actions.ts`, `src/components/PantryItemForm.tsx`, `src/lib/db/pantry.ts`, `src/lib/validation/pantry.ts`
+**Later (2026-10-14):** the ingredient picker became a searchable combobox, and a name the catalog doesn't have can be added as the user's own ingredient with a unit (`ingredients.owner_id`, migration `0002`, applied on dev only). CookFlow-Ingest must upsert with `ON CONFLICT (name) WHERE owner_id IS NULL` before its next run.
 **Scope:** M
 
 ### Checkpoint B: Pantry end-to-end

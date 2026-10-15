@@ -6,7 +6,9 @@ import { addItem, editItem, type PantryFormState } from "@/app/pantry/actions";
 import { Button } from "@/components/ui/Button";
 import { Checkbox, SelectField, TextField } from "@/components/ui/Input";
 import type { IngredientOption, PantryRow } from "@/lib/db/pantry";
-import { amountHint } from "@/lib/pantry-display";
+import { IngredientCombobox } from "@/components/IngredientCombobox";
+import { normalizeIngredientName } from "@/lib/ingredient-search";
+import { amountHint, UNIT_CHOICES } from "@/lib/pantry-display";
 import { type Unit, WEIGHED_UNITS } from "@/lib/planner";
 
 /** Amount, expiry, and (for g/ml items only, SPEC §3) the opened box. */
@@ -54,14 +56,22 @@ function ItemFields({
 }
 
 /**
- * Add an ingredient. Adding one that's already in the pantry adds to it.
- * After a failed submit the server returns what was typed, and `submittedAt`
- * remounts the fields so they show it again.
+ * Add an ingredient: search the list, or type a new name and pick its unit.
+ * Adding one that's already in the pantry adds to it. After a failed submit the
+ * server returns what was typed, and `submittedAt` remounts the fields to show it.
  */
 export function AddPantryItemForm({ options }: { options: IngredientOption[] }) {
   const [state, formAction, pending] = useActionState(addItem, null);
-  const [ingredientId, setIngredientId] = useState(state?.values.ingredientId ?? "");
-  const unit = options.find((o) => String(o.id) === ingredientId)?.unit;
+  const [text, setText] = useState(() => {
+    const picked = options.find((o) => String(o.id) === state?.values.ingredientId);
+    return picked?.name ?? state?.values.newName ?? "";
+  });
+  const [newUnit, setNewUnit] = useState(state?.values.newUnit ?? "");
+
+  const name = normalizeIngredientName(text);
+  const match = options.find((option) => option.name === name);
+  const isNew = !match && name !== "";
+  const unit = match?.unit ?? UNIT_CHOICES.find((choice) => choice.unit === newUnit)?.unit;
 
   return (
     <form
@@ -69,21 +79,31 @@ export function AddPantryItemForm({ options }: { options: IngredientOption[] }) 
       action={formAction}
       className="grid gap-md tablet:grid-cols-2 laptop:grid-cols-4 laptop:items-start"
     >
-      <SelectField
-        id="add-ingredientId"
-        name="ingredientId"
-        label="Ingredient"
-        error={state?.fieldErrors.ingredientId}
-        value={ingredientId}
-        onChange={(event) => setIngredientId(event.target.value)}
-      >
-        <option value="">Choose an ingredient</option>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.name}
-          </option>
-        ))}
-      </SelectField>
+      <IngredientCombobox
+        options={options}
+        text={text}
+        onTextChange={setText}
+        error={state?.fieldErrors.ingredientId ?? state?.fieldErrors.newName}
+      />
+      <input type="hidden" name="ingredientId" value={match ? String(match.id) : ""} />
+      <input type="hidden" name="newName" value={isNew ? text : ""} />
+      {isNew && (
+        <SelectField
+          id="add-newUnit"
+          name="newUnit"
+          label={`Measure "${name}" in`}
+          error={state?.fieldErrors.newUnit}
+          value={newUnit}
+          onChange={(event) => setNewUnit(event.target.value)}
+        >
+          <option value="">Choose a unit</option>
+          {UNIT_CHOICES.map((choice) => (
+            <option key={choice.unit} value={choice.unit}>
+              {choice.label}
+            </option>
+          ))}
+        </SelectField>
+      )}
       <ItemFields
         idPrefix="add"
         unit={unit}

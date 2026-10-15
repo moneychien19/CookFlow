@@ -40,3 +40,14 @@ const AMOUNT_HINTS: Record<Unit, string> = {
 export function amountHint(unit: Unit): string {
   return AMOUNT_HINTS[unit];
 }
+
+/** Unit choices for a new ingredient, in the order the cook is likely to need them. */
+export const UNIT_CHOICES: readonly { unit: Unit; label: string }[] = [
+  { unit: "g", label: "grams (g)" },
+  { unit: "ml", label: "millilitres (ml)" },
+  { unit: "whole", label: "whole items, like 1.5 onions" },
+  { unit: "count", label: "a count, like 6 eggs" },
+  { unit: "pack", label: "packs" },
+  { unit: "bunch", label: "bunches" },
+  { unit: "clove", label: "cloves" },
+];

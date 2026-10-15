@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeIngredientName } from "@/lib/ingredient-search";
 import { UNITS } from "@/lib/planner/types";
 
 /** numeric(8,2): the largest amount the quantity column holds. */
@@ -45,7 +46,7 @@ const newIngredient = z
   .object({
     newName: z
       .string()
-      .transform((name) => name.trim().replace(/\s+/g, " ").toLowerCase())
+      .transform(normalizeIngredientName)
       .pipe(z.string().min(1, "Type an ingredient").max(60, "Use 60 characters or fewer")),
     newUnit: z.enum(UNITS, { error: "Pick a unit" }),
   })
