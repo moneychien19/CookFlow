@@ -2,12 +2,15 @@ import type { ReactNode } from "react";
 import { cx } from "./cx";
 
 /** Status colors from CLAUDE.md's color-role table, adjusted where needed for AA contrast. */
-export type BadgeVariant = "opened" | "have" | "missing" | "neutral";
+export type BadgeVariant = "opened" | "partial" | "have" | "missing" | "neutral";
 
 const VARIANTS: Record<BadgeVariant, string> = {
   opened: "bg-gold-pale/50 text-espresso",
-  have: "bg-sage-pale text-forest",
-  missing: "border border-hairline bg-surface text-stone",
+  // Gold means "part of it", as for opened items.
+  partial: "bg-gold-pale/50 text-espresso",
+  have: "bg-sage-pale/60 text-forest",
+  // Solid grey: "not there", without looking like a warning or an empty field.
+  missing: "bg-surface-grey text-stone",
   neutral: "border border-silver bg-canvas text-stone",
 };
 

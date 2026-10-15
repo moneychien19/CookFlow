@@ -212,14 +212,15 @@ Done in CookFlow-Ingest: 158 recipes and 328 ingredients on the Neon dev branch 
 
 ### Phase 4: Recommendations and cooking
 
-#### Task 14: Recipe detail page
-**Description:** `/recipes/[id]`: image (`next/image`, TheMealDB host whitelisted), ingredients as `source_name` + `source_measure` with have / missing markers against the user's pantry, full instructions untruncated.
+#### Task 14: Recipe detail page ✅
+**Description:** `/recipes/[id]`: no photo (possible rights issues, decided 2026-10-14), ingredients on the left and steps on the right, ingredients as `source_name` + `source_measure` with have / missing markers against the user's pantry, full instructions untruncated.
 **Acceptance criteria:**
-- [ ] Ingredient text matches the source exactly; instructions shown in full
-- [ ] Unknown id → `not-found.tsx`
+- [x] Ingredient text matches the source exactly; instructions shown in full
+- [x] Unknown id → `not-found.tsx` (status stays 200 because the page streams; Next.js adds `noindex`)
 **Verification:** compare two recipes against TheMealDB; open `/recipes/999999`.
 **Dependencies:** T12
 **Files:** `src/app/recipes/[id]/{page,not-found}.tsx`, `src/lib/db/recipes.ts`, `src/components/RecipeIngredients.tsx`, `next.config.ts`
+**Open:** `recipe_ingredients` doesn't store the source's ingredient order, so the page lists non-staples first, then by name. Showing the source order needs a `position` column filled by CookFlow-Ingest.
 **Scope:** M
 
 ### Checkpoint B2: Planner on real data
