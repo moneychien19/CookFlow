@@ -126,8 +126,10 @@ The serif is for headings ≥ 24px only. Never set body text, labels, or numbers
   |---|---|
   | Partial / opened item | `gold-pale` at 50% (`bg-gold-pale/50`) badge with `espresso` text |
   | Expiry date | Plain text with the distance: "Oct 16 (in 2 days)", "(expired)". No colored badge |
-  | Ingredient you have (recipe page) | `sage-pale` badge with `forest` text (olive text on sage-pale is below AA) |
-  | Missing ingredient / shopping list | `hairline` border or divider; `stone` text for anything essential (`ash` only for non-essential captions) |
+  | Ingredient you have (recipe page) | `sage-pale` at 60% badge with `forest` text (olive text on sage-pale is below AA) |
+  | Ingredient you have only part of | Same as opened: `gold-pale` at 50% with `espresso` text (gold means "part of it") |
+  | Missing ingredient | Solid `surface-grey` badge with `stone` text |
+  | Shopping list | `hairline` border or divider; `stone` text for anything essential (`ash` only for non-essential captions) |
   | Leftovers before → after | "Before" in `gold`, "after" in `olive`; show it as a `stat-badge` pair |
 - `error` is only for validation errors and destructive confirmation. Use it for the input border **only when the field is invalid**, not on focus. Error message text is `ink`: `error` on white or canvas is below AA for small text.
 

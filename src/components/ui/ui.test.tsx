@@ -47,8 +47,9 @@ describe("Button", () => {
 describe("Badge", () => {
   it.each([
     ["opened", "Opened", "bg-gold-pale/50", "text-espresso"],
-    ["have", "Have", "bg-sage-pale", "text-forest"],
-    ["missing", "Missing", "border-hairline", "text-stone"],
+    ["partial", "Have some", "bg-gold-pale/50", "text-espresso"],
+    ["have", "Have", "bg-sage-pale/60", "text-forest"],
+    ["missing", "Missing", "bg-surface-grey", "text-stone"],
     ["neutral", "Skipped", "border-silver", "text-stone"],
   ] as const)("shows the %s status as text, not only color", (variant, text, bg, fg) => {
     const badge = render(<Badge variant={variant}>{text}</Badge>);

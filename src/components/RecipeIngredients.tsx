@@ -4,7 +4,7 @@ import { type IngredientStatus, ingredientStatus } from "@/lib/recipe-display";
 
 const BADGES: Record<IngredientStatus, { variant: BadgeVariant; text: string }> = {
   have: { variant: "have", text: "Have" },
-  some: { variant: "have", text: "Have some" },
+  some: { variant: "partial", text: "Have some" },
   missing: { variant: "missing", text: "Missing" },
   staple: { variant: "neutral", text: "Staple" },
 };
